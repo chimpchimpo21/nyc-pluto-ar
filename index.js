@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 
 
-express()
+app
     // .get('/', (req, res) => {
     //     console.log(req.query);
     //     return res.send("hello, world!");
