@@ -8,6 +8,6 @@ app.use(cors());
 
 const pool = new Pool();
 
-app.get('/location', (req, res) => {
-    res.send('Hello, world!');
+app.get('/', (req, res) => {
+    return res.send('Hello, world!');
 });
