@@ -6,8 +6,10 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 app.use(cors());
 
-const pool = new Pool();
 
-app.get('/', (req, res) => {
-    return res.send('Hello, world!');
-});
+express()
+    .get('/', (req, res) => {
+        console.log(req.query);
+        return res.send("hello, world!");
+    })
+    .listen(PORT, () => console.log(`listening on ${ PORT }`));
