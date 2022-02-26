@@ -1,11 +1,28 @@
 const express = require('express');
-const { Pool, Client } = require('pg');
+const { Client } = require('pg');
 // const connectionString = 'postgres://ncxtnyffvzymth:95e455939a032eed3410b2fd00c303114b662b257374443010e8e7627b4c37f1@ec2-18-235-4-83.compute-1.amazonaws.com:5432/dd48po6c8ohfo4'
 const cors = require('cors');
 const path = require('path');
 const PORT = process.env.PORT || 5000;
 const app = express();
 app.use(cors());
+
+const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
+
+client.connect();
+
+client.query('SELECT table_schema, table_name FROM information_schema.tables;', (err, res) => {
+    if (err) throw err;
+    for (let row of res.rows) {
+        console.log(JSON.stringify(row));
+    }
+    client.end();
+});
 
 // app.get('/', (req, res) => {
 //     console.log(req.query);
