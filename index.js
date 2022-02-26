@@ -16,10 +16,10 @@ app
     .get('/', (req, res) => {
         res.sendFile(path.join(__dirname + '/find-centroids.html'));
     })
-    .get('/my-location.js', (req, res) => {
+app.get('/my-location.js', (req, res) => {
         res.sendFile(path.join(__dirname + '/my-location.js'));
     })
-    .get('/api', (req, res) => {
+app.get('/api', (req, res) => {
         let long = req.query.long;
         let lat = req.query.lat;
         var values = [long, lat];
@@ -34,7 +34,7 @@ app
                 rejectUnauthorized: false
             }
         });
-        
+
         client.connect();
 
         client.query(text, values, (err, result) => {
@@ -55,4 +55,4 @@ app
             client.end;
         });
     })
-    .listen(PORT, () => console.log(`listening on ${ PORT }`));
+app.listen(PORT, () => console.log(`listening on ${ PORT }`));
