@@ -3,14 +3,24 @@ const path = require('path');
 const { Pool } = require('pg');
 const PORT = process.env.PORT || 5000;
 
+// const pool = new Pool({
+//     connectionString: process.env.DATABASE_URL,
+//     ssl: {
+//         rejectUnauthorized: false
+//     }
+// });
+
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
+    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:admin@localhost:5432/local_centroids',
+    ssl: process.env.DATABASE_URL ? true : false
 });
 
+// const pool = (() => {
+
+// })
+
 express()
+    .set('views', path.join(__dirname, 'views'))
     .set('view engine', 'ejs')
     .get('/db', async (req, res) => {
         try {
