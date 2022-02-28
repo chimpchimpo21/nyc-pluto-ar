@@ -10,8 +10,8 @@ var options = {
     var crd = pos.coords;
     var long = crd.longitude;
     var lat = crd.latitude;
-    // console.log(crd.longitude, crd.latitude);
-    fetch(`https://powerful-woodland-32319.herokuapp.com/api?long=${long}&lat=${lat}`)
+    console.log(long, lat);
+    fetch(`https://powerful-woodland-32319.herokuapp.com/db?long=${long}&lat=${lat}`)
       .then(response => response.json())
       .then(json => {
         console.log(json);
