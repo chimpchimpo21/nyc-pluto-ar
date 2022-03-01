@@ -31,7 +31,6 @@ app.get('/', (req, res) => {
 app.get('/db', async (req, res) => {
         let long = req.query.long;
         let lat = req.query.lat;
-        var values = [long, lat];
         try {
             const client = await pool.connect();
             const result = await client.query(`SELECT address, ST_X(ST_Transform(geom_sm, 4326)), ST_Y(ST_Transform(geom_sm, 4326)) FROM centroids_wgs84_pluto_local WHERE ST_Intersects(ST_Buffer(ST_Transform(ST_SetSRID(ST_Point(${long}, ${lat}), 4326), 3857), 50), geom_sm);`);
