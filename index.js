@@ -3,6 +3,7 @@ const path = require('path');
 const cors = require('cors');
 const { Pool } = require('pg');
 const PORT = process.env.PORT || 5000;
+const app = express();
 
 // const pool = new Pool({
 //     connectionString: process.env.DATABASE_URL,
@@ -20,13 +21,14 @@ const pool = new Pool({
 // const pool = (() => {
 
 // })
-
-express()
-    .use(cors())
-    .set('views', path.join(__dirname, 'views'))
-    .set('view engine', 'ejs')
-    .use(express.static('public'))
-    .get('/db', async (req, res) => {
+app.use(cors())
+app.use(express.static('public'))
+app.set('views', path.join(__dirname, 'views'))
+app.set('view engine', 'ejs')
+app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname + '/public/find-centroids.html'));
+    })
+app.get('/db', async (req, res) => {
         let long = req.query.long;
         let lat = req.query.lat;
         var values = [long, lat];
@@ -42,4 +44,4 @@ express()
             res.send("Error " + err);
         }
     })
-    .listen(PORT, () => console.log(`listening on ${ PORT }`));
+app.listen(PORT, () => console.log(`listening on ${ PORT }`));

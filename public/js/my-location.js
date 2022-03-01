@@ -15,12 +15,20 @@ var options = {
       .then(response => response.json())
       .then(json => {
         console.log(json);
-        //in here I need to make sure the json is getting printed to the html element
-        // coords.innerHTML = json[0].address;
-        for(const each of json){
+        //If there are no json objects currently, then simply display that on the page
+        if(!Object.keys(json)){
           let li = document.createElement('li');
-          li.innerHTML = each.address;
+          li.innerHTML = "No nearby properties!";
           coords.appendChild(li);
+        }
+        else {
+          //in here I need to make sure the json is getting printed to the html element
+          // coords.innerHTML = json[0].address;
+          for(const each of json){
+            let li = document.createElement('li');
+            li.innerHTML = each.address;
+            coords.appendChild(li);
+          }
         }
         console.log('finished');
       });
