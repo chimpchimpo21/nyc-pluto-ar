@@ -5,8 +5,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge" /> -->
         <title>Find Nearby Centroids</title>
+        <script>
+            function autoRefresh(t) {
+                setTimeout("location.reload(true);", t);
+            }
+        </script>
     </head>
-    <body>
+    <body onload = "JavaScript:autoRefresh(10000);">
         <!-- <button id = "find-me">Show my location</button><br/> -->
         <p id = "status"></p>
         <!-- <a id = "map-link" target="_blank"></a> -->
