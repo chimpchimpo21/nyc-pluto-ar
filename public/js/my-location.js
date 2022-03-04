@@ -25,8 +25,19 @@ var options = {
           console.log('nearby properties');
           for(const each of json){
             let li = document.createElement('li');
-            li.innerHTML = each.address, each.exempttot, each.st_x, each.st_y;
+            let ul = document.createElement('ul');
+            let liExemptTot = document.createElement('li');
+            let liX = document.createElement('li');
+            let liY = document.createElement('li');
+            li.innerHTML = 'address: ' + each.address;
+            liExemptTot.innerHTML = 'tax-exempt total: ' + each.exempttot; 
+            liX.innerHTML = 'x coord: ' + each.st_x;
+            liY.innerHTML = 'y coord: ' + each.st_y;
             coords.appendChild(li);
+            li.appendChild(ul);
+            ul.appendChild(liExemptTot);
+            ul.appendChild(liX);
+            ul.appendChild(liY);
           }
         }
           //in here I need to make sure the json is getting printed to the html element
