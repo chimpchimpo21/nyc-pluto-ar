@@ -25,7 +25,7 @@ var options = {
           console.log('nearby properties');
           for(const each of json){
             let li = document.createElement('li');
-            li.innerHTML = each.address;
+            li.innerHTML = each.address, each.exempttot, each.st_x, each.st_y;
             coords.appendChild(li);
           }
         }

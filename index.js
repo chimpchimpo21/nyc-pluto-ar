@@ -33,7 +33,7 @@ app.get('/db', async (req, res) => {
         let lat = req.query.lat;
         try {
             const client = await pool.connect();
-            const result = await client.query(`SELECT address, ST_X(ST_Transform(geom_sm, 4326)), ST_Y(ST_Transform(geom_sm, 4326)) FROM centroids_wgs84_pluto_local WHERE ST_Intersects(ST_Buffer(ST_Transform(ST_SetSRID(ST_Point(${long}, ${lat}), 4326), 3857), 50), geom_sm);`);
+            const result = await client.query(`SELECT address, exempttot, ST_X(ST_Transform(geom_sm, 4326)), ST_Y(ST_Transform(geom_sm, 4326)) FROM hunter WHERE ST_Intersects(ST_Buffer(ST_Transform(ST_SetSRID(ST_Point(${long}, ${lat}), 4326), 3857), 50), geom_sm);`);
             const results = { 'results': (result) ? result.rows : null};
             // res.render('pages/db', results);
             res.send(result.rows);
