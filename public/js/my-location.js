@@ -11,7 +11,7 @@ var options = {
     var long = crd.longitude;
     var lat = crd.latitude;
     console.log(long, lat);
-    fetch(`https://powerful-woodland-32319.herokuapp.com/db?long=${long}&lat=${lat}`)
+    fetch(`https://powerful-woodland-32319.herokuapp.com/sunnyside?long=${long}&lat=${lat}`)
       .then(response => response.json())
       .then(json => {
         console.log(json);

@@ -42,5 +42,19 @@ app.get('/db', async (req, res) => {
             console.error(err);
             res.send("Error " + err);
         }
-    })
+})
+app.get('/sunnyside', async (req, res) => {
+        let long = req.query.long;
+        let lat = req.query.lat;
+        try {
+            const client = await pool.connect();
+            const result = await client.query(`SELECT address, ST_X(geom_sm), ST_Y(geom_sm), FROM centroids_wgs84_pluto_local WHERE ST_Intersects(ST_Buffer(ST_Transform(ST_SetSRID(ST_Point(${long}, ${lat}), 4326), 3857), 50), geom_sm);`);
+            const results = { 'results': (result) ? result.rows : null};
+            res.render('pages/db', results);
+            client.release();
+        } catch (err) {
+            console.error(err);
+            res.send("Error " + err);
+        }
+})
 app.listen(PORT, () => console.log(`listening on ${ PORT }`));

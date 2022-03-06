@@ -16,3 +16,6 @@ FROM hunter;
 --spatial index
 CREATE INDEX hunter_geom_sm_idx
 ON hunter USING GIST(geom_sm);
+
+--SRID
+SELECT Find_SRID('public', 'hunter', 'geom_sm');
