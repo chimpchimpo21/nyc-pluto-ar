@@ -26,7 +26,7 @@ var options = {
           for(const each of json){
             let li = document.createElement('li');
             let ul = document.createElement('ul');
-            let liExemptTot = document.createElement('li');
+            // let liExemptTot = document.createElement('li');
             let liX = document.createElement('li');
             let liY = document.createElement('li');
             li.innerHTML = 'address: ' + each.address;
