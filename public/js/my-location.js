@@ -30,12 +30,12 @@ var options = {
             let liX = document.createElement('li');
             let liY = document.createElement('li');
             li.innerHTML = 'address: ' + each.address;
-            liExemptTot.innerHTML = 'tax-exempt total: ' + each.exempttot; 
+            // liExemptTot.innerHTML = 'tax-exempt total: ' + each.exempttot; 
             liX.innerHTML = 'x coord: ' + each.st_x;
             liY.innerHTML = 'y coord: ' + each.st_y;
             coords.appendChild(li);
             li.appendChild(ul);
-            ul.appendChild(liExemptTot);
+            // ul.appendChild(liExemptTot);
             ul.appendChild(liX);
             ul.appendChild(liY);
           }
