@@ -18,9 +18,6 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-// const pool = (() => {
-
-// })
 app.use(cors())
 app.use(express.static('public'))
 app.set('views', path.join(__dirname, 'views'))
