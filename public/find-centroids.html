@@ -2,19 +2,133 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
         <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge" /> -->
-        <title>Find Nearby Centroids</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
+        <title>Nearby PLUTO lots</title>
         <script>
             function autoRefresh(t) {
                 setTimeout("location.reload(true);", t);
             }
         </script>
     </head>
-    <body onload = "JavaScript:autoRefresh(10000);">
+    <body onload = "JavaScript:autoRefresh(20000);">
         <!-- <button id = "find-me">Show my location</button><br/> -->
         <p id = "status"></p>
         <!-- <a id = "map-link" target="_blank"></a> -->
+
+        <!--SCRIPT FOR THREE.js MODULE-->
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+		import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
+
+        // import { test } from './my-location.js';
+        // declare container, camera, scene, renderer
+        var container;
+        var camera, scene, renderer;
+
+        // declare epsg
+        const epsg_sm = 'EPSG:3857'
+
+        //determine user geolocation:
+        var options = {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            };
+        
+        function success(pos) {
+            var crd = pos.coords;
+            // console.log(crd);
+            var long = crd.longitude;
+            var lat = crd.latitude;
+            var coords = [long, lat]
+            // var fakeCoords_1 = [-73.964951, 40.768229];
+            // var fakeCoords_2 = [-73.964015, 40.768024];
+            var sm_crds = proj4(epsg_sm, coords);
+            // var sm_fakecrds1 = proj4(epsg_sm, fakeCoords_1);
+            // var sm_fakecrds2 = proj4(epsg_sm, fakeCoords_2);
+            // console.log(sm_crds);
+            // console.log(sm_fakecrds1);
+            // console.log(sm_fakecrds2);
+            // console.log(long, lat);
+            init(sm_crds);
+            animate();
+        }
+        
+        function error(err) {
+            console.warn(`ERROR(${err.code}): ${err.message}`);
+        }
+        
+        navigator.geolocation.getCurrentPosition(success, error, [options]);
+
+        // three.js init(), onWindowResize, animate, render functions
+        function init(sm_crds) {
+                console.log(sm_crds);
+                container = document.createElement( 'div' );
+                document.body.appendChild( container );
+
+                scene = new THREE.Scene();
+
+                camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 65 );
+                // camera.position.set = ( 0, 0, 5);
+
+                var light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
+                light.position.set( 0.5, 1, 0.25 );
+                scene.add( light );
+
+                //
+
+                renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+                renderer.setPixelRatio( window.devicePixelRatio );
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.xr.enabled = true;
+                container.appendChild( renderer.domElement );
+
+                //
+
+                document.body.appendChild( ARButton.createButton( renderer ) );
+
+                //
+
+                var geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
+                var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+                var cube_1 = new THREE.Mesh( geometry, material );
+                cube_1.position.set( sm_crds[0]-sm_crds[0], 0, sm_crds[1]-sm_crds[1] );
+                // var cube_2 = new THREE.Mesh( geometry, material );
+                // cube_2.position.set( sm_fakecrds1[0]-sm_crds[0], 0, sm_crds[1]-sm_fakecrds1[1]);
+                // var cube_3 = new THREE.Mesh( geometry, material );
+                // cube_3.position.set( sm_fakecrds2[0]-sm_crds[0], 0, sm_crds[1]-sm_fakecrds2[1] );
+                scene.add(cube_1);
+                // scene.add(cube_2);
+                // scene.add(cube_3);
+
+                //
+
+                window.addEventListener( 'resize', onWindowResize, false );
+
+            }
+
+            function onWindowResize() {
+
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize( window.innerWidth, window.innerHeight );
+
+            }
+
+            function animate() {
+
+                renderer.setAnimationLoop( render );
+
+            }
+
+            function render() {
+
+                renderer.render( scene, camera );
+
+            }
+    </script>    
     </body>
-    <script src="/js/my-location.js"></script>
+    <!-- <script src="/js/my-location.js"></script> -->
 </html>
