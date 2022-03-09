@@ -5,6 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
         <title>Nearby PLUTO lots</title>
+        <style>
+            body {
+                background-color: aquamarine;
+            }
+        </style>
         <!-- <script>
             function autoRefresh(t) {
                 setTimeout("location.reload(true);", t);
@@ -105,7 +110,7 @@
                 scene = new THREE.Scene();
                 const group = new THREE.Group();
 
-                camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 65 );
+                camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 100 );
                 // camera.position.set = ( 0, 0, 5);
 
                 var light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
@@ -113,6 +118,7 @@
                 scene.add( light );
 
                 //
+                raycaster = new THREE.Raycaster();
 
                 renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
                 renderer.setPixelRatio( window.devicePixelRatio );
@@ -121,6 +127,7 @@
                 container.appendChild( renderer.domElement );
 
                 //
+                document.addEventListener( 'mousemove', onPointerMove );
 
                 document.body.appendChild( ARButton.createButton( renderer, {color: 0x98fb98 } ) );
 
@@ -164,6 +171,13 @@
 
             }
 
+            function onPointerMove( event ) {
+
+                pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+                pointer.y = -(event.clientY / window.innerHeight ) * 2 + 1;
+
+            }
+
             function animate() {
 
                 renderer.setAnimationLoop( render );
@@ -171,6 +185,24 @@
             }
 
             function render() {
+
+                // find intersections of touch events and pluto locations
+
+                raycaster.setFromCamera( pointer, camera );
+
+                const intersects = raycaster.intersectObjects( scene.children, false );
+                if ( intersects.length > 0 ){
+                    if ( INTERSECTED != intersects[ 0 ].object ){
+                        if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED. currentHex );
+
+                        INTERSECTED = intersects[ 0 ].object;
+                        INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+                        INTERSECTED.material.emissive.setHex( 0x7fffd4 );
+                    }
+                } else {
+                    if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+                    INTERSECTED = null;
+                }
 
                 renderer.render( scene, camera );
 
