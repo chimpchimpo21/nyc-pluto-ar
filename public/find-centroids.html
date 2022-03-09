@@ -3,7 +3,6 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-        <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge" /> -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
         <title>Nearby PLUTO lots</title>
         <!-- <script>
@@ -43,6 +42,36 @@
             var long = crd.longitude;
             var lat = crd.latitude;
             var coords = [long, lat]
+            // fetch request to query postgres db for PLUTO tax lots within 50 meters of user's current location
+            fetch(`https://powerful-woodland-32319.herokuapp.com/db?long=${long}&lat=${lat}`)
+                .then(response => response.json())
+                .then(json => {console.log(json)})
+                    
+        //             if(json.length == 0) {
+        //   console.log('no nearby properties');
+        //   let li = document.createElement('li');
+        //   li.innerHTML = 'no nearby properties!';
+        //   coords.appendChild(li);
+        // }
+        // else {
+        //   console.log('nearby properties');
+        //   for(const each of json){
+        //     let li = document.createElement('li');
+        //     let ul = document.createElement('ul');
+        //     // let liExemptTot = document.createElement('li');
+        //     let liX = document.createElement('li');
+        //     let liY = document.createElement('li');
+        //     li.innerHTML = 'address: ' + each.address;
+        //     // liExemptTot.innerHTML = 'tax-exempt total: ' + each.exempttot; 
+        //     liX.innerHTML = 'x coord: ' + each.st_x;
+        //     liY.innerHTML = 'y coord: ' + each.st_y;
+        //     coords.appendChild(li);
+        //     li.appendChild(ul);
+        //     // ul.appendChild(liExemptTot);
+        //     ul.appendChild(liX);
+        //     ul.appendChild(liY);
+        //   }
+        // }
             // var fakeCoords_1 = [-73.964951, 40.768229];
             // var fakeCoords_2 = [-73.964015, 40.768024];
             var sm_crds = proj4(epsg_sm, coords);
