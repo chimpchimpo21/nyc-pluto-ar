@@ -136,7 +136,7 @@
                 for(const each of json){
                     var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0xfd5602 } );
                     var pluto_location = new THREE.Mesh( geometry, plutoMaterial );
-                    pluto_location.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
+                    pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
                     group.add(pluto_location);
                 }
 
