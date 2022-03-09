@@ -35,6 +35,7 @@
         // var objects = [];
 
         const pointer = new THREE.Vector2();
+        const raycaster = new THREE.Raycaster();
 
         // declare epsg
         const epsg_sm = 'EPSG:3857'
@@ -86,7 +87,6 @@
                 scene.add( light );
 
                 //
-                raycaster = new THREE.Raycaster();
 
                 renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
                 renderer.setPixelRatio( window.devicePixelRatio );
@@ -95,7 +95,7 @@
                 container.appendChild( renderer.domElement );
 
                 //
-                document.addEventListener( 'mousedown', onPointerMove );
+                document.addEventListener( 'touchend', onPointerMove );
 
                 document.body.appendChild( ARButton.createButton( renderer, {color: 0x98fb98 } ) );
 
