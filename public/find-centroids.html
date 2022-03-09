@@ -152,10 +152,10 @@
 
                 const intersects = raycaster.intersectObjects( scene.children, false );
                 if ( intersects.length > 0 ){
-                    if ( INTERSECTED != intersects[ 0 ].object ){
+                    if ( INTERSECTED != intersects[ 0 ].pluto_location ){
                         if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
 
-                        INTERSECTED = intersects[ 0 ].object;
+                        INTERSECTED = intersects[ 0 ].pluto_location;
                         INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
                         INTERSECTED.material.emissive.setHex( 0x7fffd4 );
                     }
