@@ -48,7 +48,7 @@
                 .then(response => response.json())
                 .then(json => {
                     console.log(json);
-                    init(sm_crds);
+                    init(sm_crds, json);
                     animate();
                 })
                     
@@ -97,12 +97,13 @@
         navigator.geolocation.getCurrentPosition(success, error, [options]);
 
         // three.js init(), onWindowResize, animate, render functions
-        function init(sm_crds) {
+        function init(sm_crds, json) {
                 // console.log(sm_crds);
                 container = document.createElement( 'div' );
                 document.body.appendChild( container );
 
                 scene = new THREE.Scene();
+                const group = new THREE.Group();
 
                 camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 65 );
                 // camera.position.set = ( 0, 0, 5);
@@ -121,19 +122,31 @@
 
                 //
 
-                document.body.appendChild( ARButton.createButton( renderer ) );
+                document.body.appendChild( ARButton.createButton( renderer, {color: 0x98fb98 } ) );
 
                 //
 
                 var geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
                 var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-                var cube_1 = new THREE.Mesh( geometry, material );
-                cube_1.position.set( sm_crds[0]-sm_crds[0], 0, sm_crds[1]-sm_crds[1] );
+                var user_location = new THREE.Mesh( geometry, material );
+                user_location.position.set( sm_crds[0]-sm_crds[0], 0, sm_crds[1]-sm_crds[1] );
+                scene.add(user_location);
+
+                // add nearby PLUTO lot points to scene
+                for(const each of json){
+                    var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0xfd5602 } );
+                    var pluto_location = new THREE.Mesh( geometry, plutoMaterial );
+                    pluto_location.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
+                    group.add(pluto_location);
+                }
+
+                scene.add( group );
+
                 // var cube_2 = new THREE.Mesh( geometry, material );
                 // cube_2.position.set( sm_fakecrds1[0]-sm_crds[0], 0, sm_crds[1]-sm_fakecrds1[1]);
                 // var cube_3 = new THREE.Mesh( geometry, material );
                 // cube_3.position.set( sm_fakecrds2[0]-sm_crds[0], 0, sm_crds[1]-sm_fakecrds2[1] );
-                scene.add(cube_1);
+                
                 // scene.add(cube_2);
                 // scene.add(cube_3);
 
