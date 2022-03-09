@@ -32,6 +32,7 @@
         var camera, scene, raycaster, renderer;
 
         var INTERSECTED;
+        var objects = [];
 
         const pointer = new THREE.Vector2();
 
@@ -113,6 +114,7 @@
                     pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
                     // group.add(pluto_location);
                     scene.add( pluto_location );
+                    objects.push( pluto_location );
                 }
 
                 // scene.add( group );
@@ -150,12 +152,12 @@
 
                 raycaster.setFromCamera( pointer, camera );
 
-                const intersects = raycaster.intersectObjects( scene.children, false );
+                const intersects = raycaster.intersectObjects( objects, false );
                 if ( intersects.length > 0 ){
-                    if ( INTERSECTED != intersects[ 0 ].pluto_location ){
+                    if ( INTERSECTED != intersects[0].object ){
                         if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
 
-                        INTERSECTED = intersects[ 0 ].pluto_location;
+                        INTERSECTED = intersects[0].object;
                         INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
                         INTERSECTED.material.emissive.setHex( 0x7fffd4 );
                     }
