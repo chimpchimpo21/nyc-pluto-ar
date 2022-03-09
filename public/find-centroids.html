@@ -29,7 +29,11 @@
         // import { test } from './my-location.js';
         // declare container, camera, scene, renderer
         var container;
-        var camera, scene, renderer;
+        var camera, scene, raycaster, renderer;
+
+        let INTERSECTED;
+
+        const pointer = new THREE.Vector2();
 
         // declare epsg
         const epsg_sm = 'EPSG:3857'
@@ -118,7 +122,7 @@
                 scene.add( light );
 
                 //
-                const raycaster = new THREE.Raycaster();
+                raycaster = new THREE.Raycaster();
 
                 renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
                 renderer.setPixelRatio( window.devicePixelRatio );
