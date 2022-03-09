@@ -31,8 +31,8 @@
         var container;
         var camera, scene, raycaster, renderer;
 
-        var INTERSECTED;
-        var objects = [];
+        // var INTERSECTED;
+        // var objects = [];
 
         const pointer = new THREE.Vector2();
 
@@ -106,7 +106,7 @@
                 var user_location = new THREE.Mesh( geometry, material );
                 user_location.position.set( sm_crds[0]-sm_crds[0], 0, sm_crds[1]-sm_crds[1] );
                 scene.add(user_location);
-                objects.push(user_location);
+                // objects.push(user_location);
 
                 // add nearby PLUTO lot points to scene
                 for(const each of json){
@@ -115,7 +115,7 @@
                     pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
                     // group.add(pluto_location);
                     scene.add( pluto_location );
-                    objects.push( pluto_location );
+                    // objects.push( pluto_location );
                 }
 
                 // scene.add( group );
@@ -138,6 +138,7 @@
 
                 pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
                 pointer.y = -(event.clientY / window.innerHeight ) * 2 + 1;
+                console.log(pointer.x, pointer.y);
 
             }
 
@@ -151,21 +152,21 @@
 
                 // find intersections of touch events and pluto locations
 
-                raycaster.setFromCamera( pointer, camera );
+                // raycaster.setFromCamera( pointer, camera );
 
-                const intersects = raycaster.intersectObjects( objects, false );
-                if ( intersects.length > 0 ){
-                    if ( INTERSECTED != intersects[0].object ){
-                        if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+                // const intersects = raycaster.intersectObjects( objects, false );
+                // if ( intersects.length > 0 ){
+                //     if ( INTERSECTED != intersects[0].object ){
+                //         if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
 
-                        INTERSECTED = intersects[0].object;
-                        INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-                        INTERSECTED.material.emissive.setHex( 0x7fffd4 );
-                    }
-                } else {
-                    if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
-                    INTERSECTED = null;
-                }
+                //         INTERSECTED = intersects[0].object;
+                //         INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+                //         INTERSECTED.material.emissive.setHex( 0x7fffd4 );
+                //     }
+                // } else {
+                //     if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+                //     INTERSECTED = null;
+                // }
 
                 renderer.render( scene, camera );
 
