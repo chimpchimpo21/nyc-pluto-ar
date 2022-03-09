@@ -149,7 +149,11 @@
             }
 
             function render() {
-
+                raycaster.setFromCamera( pointer, camera );
+                const intersects = raycaster.intersectObjects( scene.children );
+                for ( let i = 0; i < intersects.length; i++ ) {
+                    intersects[ i ].object.material.color.set( 0xff0000 );
+                }
                 // find intersections of touch events and pluto locations
 
                 // raycaster.setFromCamera( pointer, camera );
