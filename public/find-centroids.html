@@ -42,10 +42,15 @@
             var long = crd.longitude;
             var lat = crd.latitude;
             var coords = [long, lat]
+            var sm_crds = proj4(epsg_sm, coords);
             // fetch request to query postgres db for PLUTO tax lots within 50 meters of user's current location
             fetch(`https://powerful-woodland-32319.herokuapp.com/db?long=${long}&lat=${lat}`)
                 .then(response => response.json())
-                .then(json => {console.log(json)})
+                .then(json => {
+                    console.log(json);
+                    init(sm_crds);
+                    animate();
+                })
                     
         //             if(json.length == 0) {
         //   console.log('no nearby properties');
@@ -74,15 +79,15 @@
         // }
             // var fakeCoords_1 = [-73.964951, 40.768229];
             // var fakeCoords_2 = [-73.964015, 40.768024];
-            var sm_crds = proj4(epsg_sm, coords);
+            
             // var sm_fakecrds1 = proj4(epsg_sm, fakeCoords_1);
             // var sm_fakecrds2 = proj4(epsg_sm, fakeCoords_2);
             // console.log(sm_crds);
             // console.log(sm_fakecrds1);
             // console.log(sm_fakecrds2);
             // console.log(long, lat);
-            init(sm_crds);
-            animate();
+            // init(sm_crds);
+            // animate();
         }
         
         function error(err) {
