@@ -95,7 +95,7 @@
                 container.appendChild( renderer.domElement );
 
                 //
-                document.addEventListener( 'touchend', onPointerMove );
+                document.addEventListener( 'mousedown', onPointerMove );
 
                 document.body.appendChild( ARButton.createButton( renderer, {color: 0x98fb98 } ) );
 
@@ -106,6 +106,7 @@
                 var user_location = new THREE.Mesh( geometry, material );
                 user_location.position.set( sm_crds[0]-sm_crds[0], 0, sm_crds[1]-sm_crds[1] );
                 scene.add(user_location);
+                objects.push(user_location);
 
                 // add nearby PLUTO lot points to scene
                 for(const each of json){
