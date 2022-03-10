@@ -174,7 +174,7 @@
                             intersects[ i ].object.material.color.set( 0xff10f0 );
                             objects.push(intersects[i]);
                             for (var key in intersects[ i ].object.userData) {
-                                info.textContent += `${key}\n`;
+                                info.textContent += `${intersects[ i ].object.userData.key}\n`;
                             }
                         // needs to add info to the div
                         }
