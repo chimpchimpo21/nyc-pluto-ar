@@ -1,10 +1,13 @@
 body {
     background-color: aquamarine;
+    font-family: Monospace;
+    font-size: 13px;
+    overscroll-behavior: none;
+    text-align: center;
 }
 
 #info {
     position: absolute;
-    bottom: 10px;
     width: 100%;
     text-align: center;
     z-index: 100;
