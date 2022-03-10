@@ -22,182 +22,163 @@
         <!-- <a id = "map-link" target="_blank"></a> -->
 
         <!--SCRIPT FOR THREE.js MODULE-->
-    <script type="module">
-        import * as THREE from 'https://unpkg.com/three/build/three.module.js';
-		import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
+        <script type="module">
+            import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+            import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
 
-        // import { test } from './my-location.js';
-        // declare container, camera, scene, renderer
-        var container;
-        var camera, controller, scene, renderer;
+            // import { test } from './my-location.js';
+            // declare container, camera, scene, renderer
+            var container;
+            var camera, controller, scene, renderer;
 
-        // var INTERSECTED;
-        // var objects = [];
+            // var INTERSECTED;
+            var objects = [];
 
-        const pointer = new THREE.Vector2();
-        const raycaster = new THREE.Raycaster();
+            const pointer = new THREE.Vector2();
+            const raycaster = new THREE.Raycaster();
 
-        // declare epsg
-        const epsg_sm = 'EPSG:3857'
+            // declare epsg
+            const epsg_sm = 'EPSG:3857'
 
-        //determine user geolocation:
-        var options = {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
-            };
-        
-        function success(pos) {
-            var crd = pos.coords;
-            // console.log(crd);
-            var long = crd.longitude;
-            var lat = crd.latitude;
-            var coords = [long, lat]
-            var sm_crds = proj4(epsg_sm, coords);
-            // fetch request to query postgres db for PLUTO tax lots within 50 meters of user's current location
-            fetch(`https://powerful-woodland-32319.herokuapp.com/db?long=${long}&lat=${lat}`)
-                .then(response => response.json())
-                .then(json => {
-                    console.log(json);
-                    init(sm_crds, json);
-                    animate();
-                })
-        }
-        
-        function error(err) {
-            console.warn(`ERROR(${err.code}): ${err.message}`);
-        }
-        
-        navigator.geolocation.getCurrentPosition(success, error, [options]);
-
-        // three.js init(), onWindowResize, animate, render functions
-        function init(sm_crds, json) {
-                // console.log(sm_crds);
-                container = document.createElement( 'div' );
-                document.body.appendChild( container );
-
-                scene = new THREE.Scene();
-                const group = new THREE.Group();
-
-                camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 100 );
-                // camera.position.set = ( 0, 0, 5);
-
-                var light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
-                light.position.set( 0.5, 1, 0.25 );
-                scene.add( light );
-
-                //
-
-                renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-                renderer.setPixelRatio( window.devicePixelRatio );
-                renderer.setSize( window.innerWidth, window.innerHeight );
-                renderer.xr.enabled = true;
-                container.appendChild( renderer.domElement );
-
-                //
-                
-
-                document.body.appendChild( ARButton.createButton( renderer ) );
-
-                //
-
-                var geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
-                var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-                var user_location = new THREE.Mesh( geometry, material );
-                user_location.position.set( sm_crds[0]-sm_crds[0], 0, sm_crds[1]-sm_crds[1] );
-                scene.add(user_location);
-                // objects.push(user_location);
-
-                // add nearby PLUTO lot points to scene
-                for(const each of json){
-                    var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0xfd5602 } );
-                    var pluto_location = new THREE.Mesh( geometry, plutoMaterial );
-                    pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
-                    // group.add(pluto_location);
-                    scene.add( pluto_location );
-                    // objects.push( pluto_location );
-                }
-
-                // get and add controller
-                // controller = renderer.xr.getController( 0 );
-                // controller.addEventListener( 'select', )
-
-                //
-
-                window.addEventListener( 'resize', onWindowResize, false );
-                document.addEventListener( 'pointerup', onTouchUp, false );
+            //determine user geolocation:
+            var options = {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                };
+            
+            function success(pos) {
+                var crd = pos.coords;
+                // console.log(crd);
+                var long = crd.longitude;
+                var lat = crd.latitude;
+                var coords = [long, lat]
+                var sm_crds = proj4(epsg_sm, coords);
+                // fetch request to query postgres db for PLUTO tax lots within 50 meters of user's current location
+                fetch(`https://powerful-woodland-32319.herokuapp.com/db?long=${long}&lat=${lat}`)
+                    .then(response => response.json())
+                    .then(json => {
+                        console.log(json);
+                        init(sm_crds, json);
+                        animate();
+                    })
             }
-
-            function onWindowResize() {
-
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize( window.innerWidth, window.innerHeight );
-
+            
+            function error(err) {
+                console.warn(`ERROR(${err.code}): ${err.message}`);
             }
+            
+            navigator.geolocation.getCurrentPosition(success, error, [options]);
 
-            function onTouchUp( event ) {
+            // three.js init(), onWindowResize, animate, render functions
+            function init(sm_crds, json) {
+                    // console.log(sm_crds);
+                    container = document.createElement( 'div' );
+                    document.body.appendChild( container );
 
-                pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-                pointer.y = -( event.clientY / window.innerHeight ) * 2 + 1;
-                console.log(pointer.x, pointer.y);
-                raycaster.setFromCamera( pointer, camera );
-                const intersects = raycaster.intersectObjects( scene.children );
-                if (intersects.length === 0) {
-                    pointer.x = 0;
-                    pointer.y = 0;
-                    console.log(pointer.x, pointer.y);
-                } else {
-                    for ( let i = 0; i < intersects.length; i++ ) {
-                    intersects[ i ].object.material.color.set( 0xff10f0 );
+                    scene = new THREE.Scene();
+                    const group = new THREE.Group();
+
+                    camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 100 );
+                    // camera.position.set = ( 0, 0, 5);
+
+                    var light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
+                    light.position.set( 0.5, 1, 0.25 );
+                    scene.add( light );
+
+                    //
+
+                    renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+                    renderer.setPixelRatio( window.devicePixelRatio );
+                    renderer.setSize( window.innerWidth, window.innerHeight );
+                    renderer.xr.enabled = true;
+                    container.appendChild( renderer.domElement );
+
+                    //
+                    
+
+                    document.body.appendChild( ARButton.createButton( renderer ) );
+
+                    //
+
+                    var start_geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
+                    var pluto_geometry = new THREE.BoxGeometry( 1, 1, 1);
+                    var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+                    var user_location = new THREE.Mesh( start_geometry, material );
+                    user_location.position.set( sm_crds[0]-sm_crds[0], 0, sm_crds[1]-sm_crds[1] );
+                    scene.add(user_location);
+                    // objects.push(user_location);
+
+                    // add nearby PLUTO lot points to scene
+                    for(const each of json){
+                        var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0x00feef } );
+                        var pluto_location = new THREE.Mesh( pluto_geometry, plutoMaterial );
+                        pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
+                        // group.add(pluto_location);
+                        scene.add( pluto_location );
+                        // objects.push( pluto_location );
                     }
+
+                    // get and add controller
+                    // controller = renderer.xr.getController( 0 );
+                    // controller.addEventListener( 'select', )
+
+                    //
+
+                    window.addEventListener( 'resize', onWindowResize, false );
+                    document.addEventListener( 'pointerup', onTouchUp, false );
                 }
 
-            }
+                function onWindowResize() {
 
-            function animate() {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize( window.innerWidth, window.innerHeight );
 
-                renderer.setAnimationLoop( render );
+                }
 
-            }
+                function onTouchUp( event ) {
 
-            function render() {
-                // raycaster.setFromCamera( pointer, camera );
-                // const intersects = raycaster.intersectObjects( scene.children );
-                // if (intersects.length === 0) {
-                //     pointer.x = 0;
-                //     pointer.y = 0;
-                // } else {
-                //     for ( let i = 0; i < intersects.length; i++ ) {
-                //     intersects[ i ].object.material.color.set( 0xff10f0 );
-                //     }
-                // }
-                
-                
-                
-                // find intersections of touch events and pluto locations
+                    pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+                    pointer.y = -( event.clientY / window.innerHeight ) * 2 + 1;
+                    console.log(pointer.x, pointer.y);
+                    raycaster.setFromCamera( pointer, camera );
+                    const intersects = raycaster.intersectObjects( scene.children );
+                    if (intersects.length === 0) {
+                        for (let i = 0; i < objects.length; i++) {
+                            objects[i].object.material.color.set( 0x00feef );
+                            objects.pop();
+                        }
+                        // needs to clear the div of info
+                        pointer.x = 0;
+                        pointer.y = 0;
+                        console.log(pointer.x, pointer.y);
+                    } else {
+                        for (let i = 0; i < objects.length; i++) {
+                            objects[i].object.material.color.set( 0x00feef );
+                            objects.pop();
+                        }
+                        // needs to clear the div of info
+                        for ( let i = 0; i < intersects.length; i++ ) {
+                        intersects[ i ].object.material.color.set( 0xff10f0 );
+                        objects.push(intersects[i]);
+                        }
+                        // needs to add info to the div
+                    }
 
-                // raycaster.setFromCamera( pointer, camera );
+                }
 
-                // const intersects = raycaster.intersectObjects( objects, false );
-                // if ( intersects.length > 0 ){
-                //     if ( INTERSECTED != intersects[0].object ){
-                //         if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+                function animate() {
 
-                //         INTERSECTED = intersects[0].object;
-                //         INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-                //         INTERSECTED.material.emissive.setHex( 0x7fffd4 );
-                //     }
-                // } else {
-                //     if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
-                //     INTERSECTED = null;
-                // }
+                    renderer.setAnimationLoop( render );
 
-                renderer.render( scene, camera );
+                }
 
-            }
-            // document.addEventListener( 'touchend', onPointerMove );
-    </script>    
+                function render() {
+
+                    renderer.render( scene, camera );
+
+                }
+        </script>    
     </body>
-    <!-- <script src="/js/my-location.js"></script> -->
 </html>
