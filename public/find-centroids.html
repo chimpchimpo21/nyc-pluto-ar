@@ -9,6 +9,15 @@
             body {
                 background-color: aquamarine;
             }
+
+            #info {
+                position: absolute;
+                bottom: 10px;
+                width: 100%;
+                text-align: center;
+                z-index: 100;
+                display: block;
+            }
         </style>
         <!-- <script>
             function autoRefresh(t) {
@@ -18,7 +27,7 @@
     </head>
     <body> <!-- onload = "JavaScript:autoRefresh(20000);" --> 
         <!-- <button id = "find-me">Show my location</button><br/> -->
-        <div id = "info"></div>
+        <div id = "info">PLUTO information:</div>
         <!-- <a id = "map-link" target="_blank"></a> -->
 
         <!--SCRIPT FOR THREE.js MODULE-->
@@ -102,7 +111,7 @@
                     //
 
                     var start_geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
-                    var pluto_geometry = new THREE.BoxGeometry( 1, 1, 1);
+                    var pluto_geometry = new THREE.BoxGeometry( 3, 3, 3);
                     var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
                     var user_location = new THREE.Mesh( start_geometry, material );
                     user_location.position.set( sm_crds[0]-sm_crds[0], 0, sm_crds[1]-sm_crds[1] );
