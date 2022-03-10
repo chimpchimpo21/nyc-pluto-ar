@@ -147,24 +147,30 @@
                     raycaster.setFromCamera( pointer, camera );
                     const intersects = raycaster.intersectObjects( scene.children );
                     if (intersects.length === 0) {
-                        info.textContent = 'PLUTO information!!';
+                        // needs to clear the div of info
+                        info.textContent = 'PLUTO information';
                         for (let i = 0; i < objects.length; i++) {
                             objects[i].object.material.color.set( 0x00feef );
                             objects.pop();
                         }
-                        // needs to clear the div of info
                         pointer.x = 0;
                         pointer.y = 0;
                         console.log(pointer.x, pointer.y);
                     } else {
+                        // needs to clear the div of info
+                        info.textContent = 'PLUTO information';
                         for (let i = 0; i < objects.length; i++) {
                             objects[i].object.material.color.set( 0x00feef );
                             objects.pop();
                         }
-                        // needs to clear the div of info
                         for ( let i = 0; i < intersects.length; i++ ) {
                         intersects[ i ].object.material.color.set( 0xff10f0 );
                         objects.push(intersects[i]);
+                        for (var key in intersects[i]) {
+                                if (intersects[i].hasOwnProperty(key)) {
+                                    info.textContent += key + " : " + objects[i][key];
+                                }
+                            }
                         }
                         // needs to add info to the div
                     }
