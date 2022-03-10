@@ -35,6 +35,9 @@
             import * as THREE from 'https://unpkg.com/three/build/three.module.js';
             import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
 
+            // variable pointing to DOM 'info' element
+            const info = document.getElementById( 'info' );
+
             // import { test } from './my-location.js';
             // declare container, camera, scene, renderer
             var container;
@@ -154,6 +157,7 @@
                     raycaster.setFromCamera( pointer, camera );
                     const intersects = raycaster.intersectObjects( scene.children );
                     if (intersects.length === 0) {
+                        info.textContent = 'PLUTO information!!';
                         for (let i = 0; i < objects.length; i++) {
                             objects[i].object.material.color.set( 0x00feef );
                             objects.pop();
