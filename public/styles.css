@@ -1,6 +1,6 @@
 body {
-    background-color: aquamarine;
-    font-family: monospace;
+    background-color: #00FFBF;
+    font-family: 'Courier New', Courier, monospace;
     font-size: 13px;
     overscroll-behavior: none;
     text-align: center;
@@ -12,4 +12,5 @@ body {
     text-align: center;
     z-index: 100;
     display: block;
+    font-family: 'Courier New', Courier, monospace;
 }

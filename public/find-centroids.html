@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-        <link rel="stylesheet" href="/public/styles.css">
+        <link href="public/styles.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
         <title>Nearby PLUTO lots</title>
         <!-- <script>
@@ -14,7 +14,7 @@
     </head>
     <body> <!-- onload = "JavaScript:autoRefresh(20000);" --> 
         <!-- <button id = "find-me">Show my location</button><br/> -->
-        <div id = "info">PLUTO information:</div>
+        <div id = "info" style = "font-family: monospace; font-size: 15px;">PLUTO information displays here</div>
         <!-- <a id = "map-link" target="_blank"></a> -->
 
         <!--SCRIPT FOR THREE.js MODULE-->
@@ -54,7 +54,7 @@
                 var coords = [long, lat]
                 var sm_crds = proj4(epsg_sm, coords);
                 // fetch request to query postgres db for PLUTO tax lots within 50 meters of user's current location
-                fetch(`https://powerful-woodland-32319.herokuapp.com/db?long=${long}&lat=${lat}`)
+                fetch(`https://powerful-woodland-32319.herokuapp.com/sunnyside?long=${long}&lat=${lat}`)
                     .then(response => response.json())
                     .then(json => {
                         console.log(json);
@@ -119,11 +119,11 @@
                         pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
                         // group.add(pluto_location);
                         // add the pluto locations attribute information
-                        pluto_location.userData = { ADDRESS: `${each.address}`,
-                                                    ASSESSTOT: `${each.assesstot}`,
-                                                    BLDGCLASS: `${each.bldgclass}`,
-                                                    EXEMPTTOT: `${each.exempttot}`,
-                                                    NUMFLOORS: `${each.numfloors}`};
+                        pluto_location.userData = { ADDRESS: `${each.address}`};
+                                                    // ASSESSTOT: `${each.assesstot}`,
+                                                    // BLDGCLASS: `${each.bldgclass}`,
+                                                    // EXEMPTTOT: `${each.exempttot}`,
+                                                    // NUMFLOORS: `${each.numfloors}`};
                         scene.add( pluto_location );
                         // objects.push( pluto_location );
                     }
@@ -155,7 +155,7 @@
                     const intersects = raycaster.intersectObjects( scene.children );
                     if (intersects.length === 0) {
                         // needs to clear the div of info
-                        info.textContent = 'PLUTO information';
+                        info.textContent = 'PLUTO information displays here';
                         for (let i = 0; i < objects.length; i++) {
                             objects[i].object.material.color.set( 0x00feef );
                             objects.pop();
@@ -165,7 +165,7 @@
                         console.log(pointer.x, pointer.y);
                     } else {
                         // needs to clear the div of info
-                        info.textContent = 'PLUTO information';
+                        info.textContent = 'PLUTO information displays here';
                         for (let i = 0; i < objects.length; i++) {
                             objects[i].object.material.color.set( 0x00feef );
                             objects.pop();
@@ -173,9 +173,11 @@
                         for ( let i = 0; i < intersects.length; i++ ) {
                             intersects[ i ].object.material.color.set( 0xff10f0 );
                             objects.push(intersects[i]);
-                            for (var key in intersects[ i ].object.userData) {
-                                info.textContent += `${intersects[ i ].object.userData.key}\n`;
-                            }
+                            // info.textContent += `\n${intersects[ i ].object.userData.ADDRESS}`;
+                            info.textContent = `\n${Object.entries(intersects[ i ].object.userData)}\n`;
+                            // for (var key in intersects[ i ].object.userData) {
+                            //     info.textContent += `${intersects[ i ].object.userData.key}\n`;
+                            // }
                         // needs to add info to the div
                         }
 
