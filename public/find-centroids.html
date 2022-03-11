@@ -54,7 +54,7 @@
                 var coords = [long, lat]
                 var sm_crds = proj4(epsg_sm, coords);
                 // fetch request to query postgres db for PLUTO tax lots within 50 meters of user's current location
-                fetch(`https://powerful-woodland-32319.herokuapp.com/sunnyside?long=${long}&lat=${lat}`)
+                fetch(`https://powerful-woodland-32319.herokuapp.com/db?long=${long}&lat=${lat}`)
                     .then(response => response.json())
                     .then(json => {
                         console.log(json);
@@ -119,11 +119,7 @@
                         pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
                         // group.add(pluto_location);
                         // add the pluto locations attribute information
-                        pluto_location.userData = { ADDRESS: `${each.address}`};
-                                                    // ASSESSTOT: `${each.assesstot}`,
-                                                    // BLDGCLASS: `${each.bldgclass}`,
-                                                    // EXEMPTTOT: `${each.exempttot}`,
-                                                    // NUMFLOORS: `${each.numfloors}`};
+                        pluto_location.userData = { ADDRESS: `${each.address}`, ASSESSTOT: `${each.assesstot}`, BLDGCLASS: `${each.bldgclass}`, EXEMPTTOT: `${each.exempttot}`, NUMFLOORS: `${each.numfloors}`};
                         scene.add( pluto_location );
                         // objects.push( pluto_location );
                     }
