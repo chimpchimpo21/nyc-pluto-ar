@@ -170,7 +170,7 @@
                             intersects[ i ].object.material.color.set( 0xff10f0 );
                             objects.push(intersects[i]);
                             // info.textContent += `\n${intersects[ i ].object.userData.ADDRESS}`;
-                            info.textContent = `\n${Object.entries(intersects[ i ].object.userData)}\n`;
+                            info.textContent = `${Object.entries(intersects[ i ].object.userData)}`;
                             // for (var key in intersects[ i ].object.userData) {
                             //     info.textContent += `${intersects[ i ].object.userData.key}\n`;
                             // }
