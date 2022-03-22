@@ -1,4 +1,4 @@
 *.sql
 *.log
-.gitignore
+*.gitignore
 /node_modules
