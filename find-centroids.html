@@ -14,7 +14,7 @@
     </head>
     <body> <!-- onload = "JavaScript:autoRefresh(20000);" --> 
         <!-- <button id = "find-me">Show my location</button><br/> -->
-        <pre id = "info" style = "font-family: monospace; font-size: 14px; white-space: pre; color: #F9203A;">PLUTO information displays here</pre>
+        <pre id = "info" style = "height: 70px; overflow: auto; background-color: aqua; font-family: monospace; font-size: 14px; white-space: pre; color: black;">Tap 'START AR' Button</pre>
         <!-- <a id = "map-link" target="_blank"></a> -->
 
         <!--SCRIPT FOR THREE.js MODULE-->
@@ -57,7 +57,7 @@
                 fetch(`https://powerful-woodland-32319.herokuapp.com/db?long=${long}&lat=${lat}`)
                     .then(response => response.json())
                     .then(json => {
-                        console.log(json);
+                        // console.log(json);
                         init(sm_crds, json);
                         animate();
                     })
@@ -72,6 +72,8 @@
             // three.js init(), onWindowResize, animate, render functions
             function init(sm_crds, json) {
                     // console.log(sm_crds);
+                    var dict = {};
+
                     container = document.createElement( 'div' );
                     document.body.appendChild( container );
 
@@ -110,25 +112,18 @@
                     user_location.position.set( sm_crds[0]-sm_crds[0], 0, sm_crds[1]-sm_crds[1] );
                     user_location.userData = { INFO: "This is where you started the scene." };
                     scene.add(user_location);
-                    // objects.push(user_location);
 
                     // add nearby PLUTO lot points to scene
                     for(const each of json){
+                        // console.log(Object.entries(each));
+                        // console.log(each.st_x, each.st_y);
                         var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0x00feef } );
                         var pluto_location = new THREE.Mesh( pluto_geometry, plutoMaterial );
                         pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
-                        // group.add(pluto_location);
                         // add the pluto locations attribute information
-                        pluto_location.userData = { ADDRESS: `${each.address}`, ASSESSTOT: `${each.assesstot}`, BLDGCLASS: `${each.bldgclass}`, EXEMPTTOT: `${each.exempttot}`, NUMFLOORS: `${each.numfloors}`};
+                        pluto_location.userData = Object.entries(each);
                         scene.add( pluto_location );
-                        // objects.push( pluto_location );
                     }
-
-                    // get and add controller
-                    // controller = renderer.xr.getController( 0 );
-                    // controller.addEventListener( 'select', )
-
-                    //
 
                     window.addEventListener( 'resize', onWindowResize, false );
                     document.addEventListener( 'pointerup', onTouchUp, false );
@@ -151,7 +146,7 @@
                     const intersects = raycaster.intersectObjects( scene.children );
                     if (intersects.length === 0) {
                         // needs to clear the div of info
-                        info.textContent = 'PLUTO information displays here';
+                        info.innerText = 'PLUTO information displays here';
                         for (let i = 0; i < objects.length; i++) {
                             objects[i].object.material.color.set( 0x00feef );
                             objects.pop();
@@ -161,7 +156,7 @@
                         console.log(pointer.x, pointer.y);
                     } else {
                         // needs to clear the div of info
-                        info.textContent = 'PLUTO information displays here';
+                        info.innerText = 'PLUTO information displays here';
                         for (let i = 0; i < objects.length; i++) {
                             objects[i].object.material.color.set( 0x00feef );
                             objects.pop();
@@ -170,7 +165,7 @@
                             intersects[ i ].object.material.color.set( 0xff10f0 );
                             objects.push(intersects[i]);
                             // info.textContent += `\n${intersects[ i ].object.userData.ADDRESS}`;
-                            info.textContent = `${Object.entries(intersects[ i ].object.userData).join("\n")}`;
+                            info.innerText = `${Object.entries(intersects[ i ].object.userData).join("\n")}`;
                             // for (var key in intersects[ i ].object.userData) {
                             //     info.textContent += `${intersects[ i ].object.userData.key}\n`;
                             // }
