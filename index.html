@@ -70,122 +70,197 @@
             navigator.geolocation.getCurrentPosition(success, error, [options]);
 
             // three.js init(), onWindowResize, animate, render functions
+            
             function init(sm_crds, json) {
-                    // console.log(sm_crds);
-                    var dict = {};
 
-                    container = document.createElement( 'div' );
-                    document.body.appendChild( container );
+                const options = {
+                        once: true
+                }
 
-                    scene = new THREE.Scene();
-                    const group = new THREE.Group();
+                var offset;
 
-                    camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 100 );
-                    // camera.position.set = ( 0, 0, 5);
+                function startOrient() {
+                    window.addEventListener( "touchend", checkOrientation, options );
+                }
+                // console.log(sm_crds);
+                var dict = {};
 
-                    var light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
-                    light.position.set( 0.5, 1, 0.25 );
-                    scene.add( light );
+                container = document.createElement( 'div' );
+                document.body.appendChild( container );
 
-                    //
+                scene = new THREE.Scene();
+                const group = new THREE.Group();
 
-                    renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-                    renderer.setPixelRatio( window.devicePixelRatio );
-                    renderer.setSize( window.innerWidth, window.innerHeight );
-                    renderer.xr.enabled = true;
-                    container.appendChild( renderer.domElement );
+                camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 100 );
 
-                    //
+                const light = new THREE.DirectionalLight( 0xffffff, 1 );
+                // light.position.set( 0, 10, 0 );
+                scene.add( light );
+
+                //
+
+                renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+                renderer.setPixelRatio( window.devicePixelRatio );
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.xr.enabled = true;
+                container.appendChild( renderer.domElement );
+
+                //
+
+                document.body.appendChild( ARButton.createButton( renderer, {
+                    optionalFeatures: [ 'dom-overlay', 'dom-overlay-for-handheld-ar' ],
+                    domOverlay: { root: document.body }
+                } ) );
+
+                // controller
+
+                controller = renderer.xr.getController( 0 );
+                scene.add( controller );
+
+                // initial box geometry
+
+                var pluto_geometry = new THREE.BoxGeometry( 3, 3, 3);
+
+                // check for iOS orientation and render/rotate objects as necessary
+
+                function handleiOSOrientation(event) {
+                    // info.innerText = "iOS detected"
+                    var compassDir = event.webkitCompassHeading;
+                    if (compassDir === 0) {
+                        checkOrientation();
+                    }
+                    offset = compassDir * (Math.PI/180);
                     
-
-                    document.body.appendChild( ARButton.createButton( renderer, {
-                        optionalFeatures: [ 'dom-overlay', 'dom-overlay-for-handheld-ar' ],
-                        domOverlay: { root: document.body }
-                    } ) );
-
-                    //
-
-                    var start_geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
-                    var pluto_geometry = new THREE.BoxGeometry( 3, 3, 3);
-                    var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-                    var user_location = new THREE.Mesh( start_geometry, material );
-                    user_location.position.set( sm_crds[0]-sm_crds[0], 0, sm_crds[1]-sm_crds[1] );
-                    user_location.userData = { INFO: "This is where you started the scene." };
-                    scene.add(user_location);
-
-                    // add nearby PLUTO lot points to scene
-                    for(const each of json){
-                        // console.log(Object.entries(each));
-                        // console.log(each.st_x, each.st_y);
+                    for (const each of json) {
                         var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0x00feef } );
                         var pluto_location = new THREE.Mesh( pluto_geometry, plutoMaterial );
-                        pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
-                        // add the pluto locations attribute information
+                        // pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
+
+                        pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y).applyMatrix4( controller.matrixWorld );
+                        pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
+
                         pluto_location.userData = Object.entries(each);
+                        
                         scene.add( pluto_location );
                     }
-
-                    window.addEventListener( 'resize', onWindowResize, false );
-                    document.addEventListener( 'pointerup', onTouchUp, false );
+                    scene.rotation.y = offset;
                 }
-
-                function onWindowResize() {
-
-                    camera.aspect = window.innerWidth / window.innerHeight;
-                    camera.updateProjectionMatrix();
-                    renderer.setSize( window.innerWidth, window.innerHeight );
-
-                }
-
-                function onTouchUp( event ) {
-
-                    pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-                    pointer.y = -( event.clientY / window.innerHeight ) * 2 + 1;
-                    console.log(pointer.x, pointer.y);
-                    raycaster.setFromCamera( pointer, camera );
-                    const intersects = raycaster.intersectObjects( scene.children );
-                    if (intersects.length === 0) {
-                        // needs to clear the div of info
-                        info.innerText = 'PLUTO information displays here';
-                        for (let i = 0; i < objects.length; i++) {
-                            objects[i].object.material.color.set( 0x00feef );
-                            objects.pop();
-                        }
-                        pointer.x = 0;
-                        pointer.y = 0;
-                        console.log(pointer.x, pointer.y);
+                
+                function handleOrientation(event) {
+                    // info.innerText = "Android detected"
+                    var alpha = event.alpha;
+                    var absolute = event.absolute;
+                    if (absolute != "true") {
+                        console.log("No magnetometer detected. \nPlease make sure you are facing \n'north' as the scene is loaded. \nPlease reload if need be.")
+                        info.innerText = `No magnetometer detected. \nPlease make sure you are facing \n'north' as the scene is loaded. \nPlease reload if needed.`
                     } else {
-                        // needs to clear the div of info
-                        info.innerText = 'PLUTO information displays here';
-                        for (let i = 0; i < objects.length; i++) {
-                            objects[i].object.material.color.set( 0x00feef );
-                            objects.pop();
-                        }
-                        for ( let i = 0; i < intersects.length; i++ ) {
-                            intersects[ i ].object.material.color.set( 0xff10f0 );
-                            objects.push(intersects[i]);
-                            // info.textContent += `\n${intersects[ i ].object.userData.ADDRESS}`;
-                            info.innerText = `${Object.entries(intersects[ i ].object.userData).join("\n")}`;
-                            // for (var key in intersects[ i ].object.userData) {
-                            //     info.textContent += `${intersects[ i ].object.userData.key}\n`;
-                            // }
-                        // needs to add info to the div
-                        }
+                        offset = alpha * (Math.PI/180);
 
+                        for (const each of json) {
+                            var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0x00feef } );
+                            var pluto_location = new THREE.Mesh( pluto_geometry, plutoMaterial );
+
+                            pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y).applyMatrix4( controller.matrixWorld );
+                            pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
+
+                            pluto_location.userData = Object.entries(each);
+                            
+                            scene.add( pluto_location );
+                        }
+                        scene.rotation.y = -offset;
                     }
                 }
+
+                    // checkOrientation function to decide if iPhone or Android is seeking orientation
+
+                    // function to check orientation device type and send to appropriate orientation/rotation function
+
+                function checkOrientation() {
+
+                    console.log('starting to check orientation');
+                    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                        DeviceOrientationEvent.requestPermission()
+                        .then(permissionState => {
+                            if (permissionState === 'granted') {
+                                window.addEventListener( 'deviceorientation', handleiOSOrientation, options);
+                            }
+                        })
+                        .catch(console.error);
+                    } else {
+                        window.addEventListener( 'deviceorientation', handleOrientation, options);
+                    }
+                }
+
+                window.addEventListener( 'resize', onWindowResize, false );
+                document.addEventListener( 'pointerup', startOrient, options );
+                document.addEventListener( 'pointerup', onTouchUp, false );
+            }
+
+            function onWindowResize() {
+
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize( window.innerWidth, window.innerHeight );
+
+            }
+
+            function onTouchUp( event ) {
+
+                pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+                pointer.y = -( event.clientY / window.innerHeight ) * 2 + 1;
+                // console.log(pointer.x, pointer.y);
+                raycaster.setFromCamera( pointer, camera );
+                var intersects = raycaster.intersectObjects( scene.children );
+                if (intersects.length > 1) {
+                    intersects.pop();
+                }
+                if (intersects.length === 0) {
+                    // needs to clear the div of info
+                    info.innerText = 'PLUTO information displays here';
+                    for (let i = 0; i < objects.length; i++) {
+                        objects[i].object.material.color.set( 0x00feef );
+                        objects.splice( i , 1 );
+                    }
+                    pointer.x = null;
+                    pointer.y = null;
+                    // console.log(pointer.x, pointer.y);
+                } else {
+                    if (objects.length > 0 ) {
+                        for (let i = 0; i < objects.length; i++) {
+                            objects[i].object.material.color.set( 0x00feef );
+                            objects.splice( i, 1 );
+                        }
+                        info.innerText = '';
+                        
+                        for ( let i = 0; i < intersects.length ; i++ ) {
+                            intersects[ i ].object.material.color.set( 0xff10f0 );
+                            objects.push(intersects[i]);
+                            info.innerText = `${Object.entries(intersects[ i ].object.userData).join("\n")}`;
+                        }
+                    } else {
+                        // needs to clear the div of info
+                        info.innerText = '';
+                        
+                        for ( let i = 0; i < intersects.length ; i++ ) {
+                            intersects[ i ].object.material.color.set( 0xff10f0 );
+                            objects.push(intersects[i]);
+                            info.innerText = `${Object.entries(intersects[ i ].object.userData).join("\n")}`;
+                        }
+                    }
+                }
+            }
             
-                function animate() {
+            function animate() {
 
-                    renderer.setAnimationLoop( render );
+                renderer.setAnimationLoop( render );
 
-                }
+            }
 
-                function render() {
+            function render() {
 
-                    renderer.render( scene, camera );
+                renderer.render( scene, camera );
 
-                }
+            }
         </script>    
     </body>
 </html>
