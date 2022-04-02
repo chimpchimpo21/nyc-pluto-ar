@@ -7,10 +7,11 @@ body {
 }
 
 #info {
-    position: absolute;
-    width: 100%;
-    text-align: center;
-    z-index: 100;
-    display: block;
-    font-family: 'Courier New', Courier, monospace;
+    height: 70px;
+    overflow: auto;
+    background-color: rgb(255, 0, 212);
+    font-family: monospace;
+    font-size: 14px;
+    white-space: pre;
+    color: black;
 }

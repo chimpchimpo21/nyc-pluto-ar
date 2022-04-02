@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-        <link href="public/styles.css">
+        <link type="text/css" rel="stylesheet" href="/public/styles.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
         <title>Nearby PLUTO lots</title>
         <!-- <script>
@@ -14,7 +14,7 @@
     </head>
     <body> <!-- onload = "JavaScript:autoRefresh(20000);" --> 
         <!-- <button id = "find-me">Show my location</button><br/> -->
-        <pre id = "info" style = "height: 70px; overflow: auto; background-color: aqua; font-family: monospace; font-size: 14px; white-space: pre; color: black;">Tap 'START AR' Button</pre>
+        <pre id = "info">Tap 'START AR' Button</pre>
         <!-- <a id = "map-link" target="_blank"></a> -->
 
         <!--SCRIPT FOR THREE.js MODULE-->
@@ -207,17 +207,8 @@
                     }
                 }
 
-                window.addEventListener( 'resize', onWindowResize, false );
                 document.addEventListener( 'pointerup', startOrient, once );
                 document.addEventListener( 'pointerup', onTouchUp, false );
-            }
-
-            function onWindowResize() {
-
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize( window.innerWidth, window.innerHeight );
-
             }
 
             function onTouchUp( event ) {
@@ -227,15 +218,13 @@
                 // console.log(pointer.x, pointer.y);
                 raycaster.setFromCamera( pointer, camera );
                 var intersects = raycaster.intersectObjects( scene.children );
-                // if (intersects.length > 1) {
-                //     intersects.pop();
-                // }
                 if (intersects.length === 0) {
                     // needs to clear the div of info
                     info.innerText = 'PLUTO information displays here';
                     for (let i = 0; i < objects.length; i++) {
+                        // info.innerText = objects[i].object.material.color;
                         objects[i].object.material.color.set( 0x00feef );
-                        objects.splice( i , 1 );
+                        objects.pop();
                     }
                     pointer.x = null;
                     pointer.y = null;
@@ -246,7 +235,7 @@
 
                     for (let i = 0; i < objects.length; i++) {
                             objects[i].object.material.color.set( 0x00feef );
-                            objects.splice( i, 1 );
+                            objects.pop();
                     }
                     info.innerText = '';
                         
@@ -255,31 +244,6 @@
                         objects.push(intersects[i]);
                         info.innerText = `${Object.entries(intersects[ i ].object.userData).join("\n")}`;
                     }
-
-                    // TESTING SECTION!!
-
-                    // if (objects.length > 0 ) {
-                    //     for (let i = 0; i < objects.length; i++) {
-                    //         objects[i].object.material.color.set( 0x00feef );
-                    //         objects.splice( i, 1 );
-                    //     }
-                    //     info.innerText = '';
-                        
-                    //     for ( let i = 0; i < intersects.length ; i++ ) {
-                    //         intersects[ i ].object.material.color.set( 0xff10f0 );
-                    //         objects.push(intersects[i]);
-                    //         info.innerText = `${Object.entries(intersects[ i ].object.userData).join("\n")}`;
-                    //     }
-                    // } else {
-                    //     // needs to clear the div of info
-                    //     info.innerText = '';
-                        
-                    //     for ( let i = 0; i < intersects.length ; i++ ) {
-                    //         intersects[ i ].object.material.color.set( 0xff10f0 );
-                    //         objects.push(intersects[i]);
-                    //         info.innerText = `${Object.entries(intersects[ i ].object.userData).join("\n")}`;
-                    //     }
-                    // }
                 }
             }
             
