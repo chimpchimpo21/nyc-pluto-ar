@@ -19,6 +19,8 @@
 
         <!--SCRIPT FOR THREE.js MODULE-->
         <script type="module">
+            var t0 = 0;
+
             import * as THREE from 'https://unpkg.com/three/build/three.module.js';
             import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
 
@@ -42,7 +44,6 @@
             //determine user geolocation:
             var options = {
                     enableHighAccuracy: true,
-                    timeout: 5000,
                     maximumAge: 0
                 };
             
@@ -54,10 +55,16 @@
                 var coords = [long, lat]
                 var sm_crds = proj4(epsg_sm, coords);
                 // fetch request to query postgres db for PLUTO tax lots within 50 meters of user's current location
+                // unit for testing speed of loading the pluto data
+                t0 = performance.now();
+                // pluto loading speed
                 fetch(`https://powerful-woodland-32319.herokuapp.com/db?long=${long}&lat=${lat}`)
                     .then(response => response.json())
                     .then(json => {
                         // console.log(json);
+                        // end of pluto loading test
+                        const t1 = performance.now();
+                        info.textContent = `loaded ${json.length} pluto in ${t1-t0} ms`;
                         init(sm_crds, json);
                         animate();
                     })
@@ -82,8 +89,6 @@
                 function startOrient() {
                     window.addEventListener( "touchend", checkOrientation, once );
                 }
-                // console.log(sm_crds);
-                var dict = {};
 
                 container = document.createElement( 'div' );
                 document.body.appendChild( container );
@@ -193,7 +198,7 @@
 
                 function checkOrientation() {
 
-                    console.log('starting to check orientation');
+                    // console.log('starting to check orientation');
                     if (typeof DeviceOrientationEvent.requestPermission === 'function') {
                         DeviceOrientationEvent.requestPermission()
                         .then(permissionState => {
