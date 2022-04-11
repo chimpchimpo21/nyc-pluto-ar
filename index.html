@@ -39,7 +39,8 @@
             const raycaster = new THREE.Raycaster();
 
             // declare epsg
-            const epsg_sm = 'EPSG:3857'
+            const epsg_sm = 'EPSG:3857';
+            const epsg_sp = '+proj=lcc +lat_1=41.03333333333333 +lat_2=40.66666666666666 +lat_0=40.16666666666666 +lon_0=-74 +x_0=300000.0000000001 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=us-ft +no_defs';
 
             //determine user geolocation:
             var options = {
@@ -56,6 +57,7 @@
                 var lat = crd.latitude;
                 var coords = [long, lat]
                 var sm_crds = proj4(epsg_sm, coords);
+                var sp_crds = proj4(epsg_sp, coords);
                 // fetch request to query postgres db for PLUTO tax lots within 50 meters of user's current location
                 // unit for testing speed of loading the pluto data
                 t0 = performance.now();
@@ -68,7 +70,7 @@
                         const t1 = performance.now();
                         info.textContent = `loaded ${json.length} pluto in ${t1-t0} ms`;
                         // info.textContent = `accuracy: ${acc} meters`;
-                        init(sm_crds, json);
+                        init(sm_crds, sp_crds, json);
                         animate();
                     })
             }
@@ -81,7 +83,7 @@
 
             // three.js init(), onWindowResize, animate, render functions
             
-            function init(sm_crds, json) {
+            function init(sm_crds, sp_crds, json) {
 
                 const once = {
                     once: true
@@ -129,6 +131,8 @@
 
                 var pluto_geometry = new THREE.BoxGeometry( 3, 3, 3);
 
+                document.addEventListener( 'pointerup', startOrient, once ); 
+
                 // check for iOS orientation and render/rotate objects as necessary
 
                 function handleiOSOrientation(event) {
@@ -142,10 +146,18 @@
                     for (const each of json) {
                         var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0x00feef } );
                         var pluto_location = new THREE.Mesh( pluto_geometry, plutoMaterial );
+                        
                         // pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
+                        
+                        // spherical mercator positioning
 
                         pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y).applyMatrix4( controller.matrixWorld );
                         pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
+
+                        // state plane positioning
+
+                        // pluto_location.position.set((each.xcoord-sp_crds[0])*0.3048, 0, (sp_crds[1]-each.ycoord)*0.3048).applyMatrix4( controller.matrixWorld );
+                        // pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
 
                         pluto_location.userData = Object.entries(each);
                         
@@ -215,7 +227,7 @@
                     }
                 }
 
-                document.addEventListener( 'pointerup', startOrient, once );
+                // document.addEventListener( 'pointerup', startOrient, once );
                 document.addEventListener( 'pointerup', onTouchUp, false );
             }
 
