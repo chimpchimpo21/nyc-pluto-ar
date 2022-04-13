@@ -161,9 +161,25 @@
 
                         pluto_location.userData = Object.entries(each);
                         
-                        scene.add( pluto_location );
+                        // scene.add( pluto_location );
+                        group.add( pluto_location );
                     }
+
                     scene.rotation.y = offset;
+
+                    // test adding PLUTO text backing plane to scene
+                    // var planeGeometry = new THREE.PlaneGeometry( 0.5, 0.5 );
+                    // var textBacking = new THREE.MeshBasicMaterial( {transparent: true, opacity: 0.3, color: 0xffffff, side: THREE.DoubleSide} );
+                    // var textPlane = new THREE.Mesh( planeGeometry, textBacking );
+                    
+                    // textPlane.position.set( -0.5, -0.25, 0 ).applyMatrix4( controller.matrixWorld );
+                    // pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
+                    // textPlane.rotateY( (90 * Math.PI) / 180 );
+                    // //  
+                    // // textPlane.rotation.z = ( (180 * Math.PI) / 180 );
+                    // scene.add( textPlane ); 
+                    // end of test
+                    scene.add( group );
                 }
                 
                 function handleOrientation(event) {
