@@ -6,18 +6,10 @@
         <link type="text/css" rel="stylesheet" href="styles.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
         <title>Nearby PLUTO lots</title>
-        <!-- <script>
-            function autoRefresh(t) {
-                setTimeout("location.reload(true);", t);
-            }
-        </script> -->
     </head>
-    <body> <!-- onload = "JavaScript:autoRefresh(20000);" --> 
-        <!-- <button id = "find-me">Show my location</button><br/> -->
+    <body>  
         <pre id = "info">Tap 'START AR' Button</pre>
-        <!-- <a id = "map-link" target="_blank"></a> -->
         <script async src="https://unpkg.com/es-module-shims@1.4.7/dist/es-module-shims.js"></script>
-
         <script type="importmap">
             {
               "imports": {
@@ -70,7 +62,7 @@
                 var crd = pos.coords;
                 // console.log(pos);
                 var acc = crd.accuracy;
-                console.log(acc);
+                // console.log(acc);
                 var long = crd.longitude;
                 var lat = crd.latitude;
                 var coords = [long, lat]
@@ -176,13 +168,13 @@
                         
                         // spherical mercator positioning
 
-                        pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y).applyMatrix4( controller.matrixWorld );
-                        pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
+                        // pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y).applyMatrix4( controller.matrixWorld );
+                        // pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
 
                         // state plane positioning
 
-                        // pluto_location.position.set((each.xcoord-sp_crds[0])*0.3048, 0, (sp_crds[1]-each.ycoord)*0.3048).applyMatrix4( controller.matrixWorld );
-                        // pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
+                        pluto_location.position.set((each.st_x-sp_crds[0])*0.3048, 0, (sp_crds[1]-each.st_y)*0.3048).applyMatrix4( controller.matrixWorld );
+                        pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
 
                         pluto_location.userData = Object.entries(each);
                         
