@@ -42,6 +42,9 @@
             var container;
             var camera, controller, scene, renderer, labelRenderer;
 
+            var geojsons = [];
+            var encodedGeojson, texture;
+
             var magnet = 0;
             var objects = [];
 
@@ -80,7 +83,7 @@
                         const t1 = performance.now();
                         info.textContent = `loaded ${json.length} pluto in ${t1-t0} ms \naccuracy: ${acc} meters`;
                         // info.textContent = `accuracy: ${acc} meters`;
-                        init(sm_crds, sp_crds, json);
+                        init(long, lat, sm_crds, sp_crds, json);
                         animate();
                     })
             }
@@ -93,11 +96,24 @@
 
             // three.js init(), onWindowResize, animate, render functions
             
-            function init(sm_crds, sp_crds, json) {
+            function init(long, lat, sm_crds, sp_crds, json) {
 
-                // testing encoding the json
-                var encodedGeojson = encodeURI(`${json[1].geometry}`);
-                console.log(encodedGeojson);
+                // testing encoding the jsons geojson features
+                // for(let each = 0; each < json.length; each++) {
+
+                //     geojsons.push(json[each].geojson);
+                // }
+                // console.log(geojsons);
+
+                var test_json = `{"Features": [{"type":"Polygon","coordinates":[[[-73.965133688,4…054,40.768394043],[-73.965133688,40.768218479]]]}', '{"type":"Polygon","coordinates":[[[-73.963765854,4…871,40.769022288],[-73.963765854,40.768462437]]]}', '{"type":"Polygon","coordinates":[[[-73.964734175,4…688,40.768218479],[-73.964734175,40.768050216]]]}]}`;
+                var encodeTest = encodeURIComponent(`${test_json}`);
+                console.log(encodeTest);
+                var originalGeojson = encodeURIComponent(`${json[0].geojson}`);
+                encodedGeojson = encodeURIComponent(`${geojsons}`)
+                console.log(originalGeojson);
+                // console.log(encodedGeojson);
+
+                texture = new THREE.TextureLoader().load( `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${originalGeojson})/${long},${lat},18/1280x1280?access_token=pk.eyJ1IjoibW93YXJkMTIiLCJhIjoiY2ttMHFkbzd0MDJlZTJxbXNyNGxzZGJzaSJ9.KyxNm2KzwhMm0YPhU4sARg` );
 
                 const once = {
                     once: true
@@ -308,9 +324,9 @@
                         // PLANE with TEXT TESTING:
 
                         const planeGeometry = new THREE.PlaneGeometry( 0.5, 0.5 );
-                        const textBacking = new THREE.MeshBasicMaterial( {transparent: true, opacity: 0.3, color: 0xffffff, side: THREE.DoubleSide} );
+                        const textBacking = new THREE.MeshBasicMaterial( {map: texture, transparent: true, opacity: 0.6, color: 0xffffff, side: THREE.DoubleSide} );
                         const textPlane = new THREE.Mesh( planeGeometry, textBacking );
-                        textPlane.position.set( 0.6, 0.3, -2 );
+                        textPlane.position.set( -0.5, 0.3, -0.5 );
                         // textPlane.rotateY( -(45 * Math.PI) / 180 );
                         scene.add( textPlane );
 
