@@ -16,9 +16,13 @@ body {
     color: black;
 }
 .label {
-    color: #FFF;
+    height: 50vh;
+    width: 75vh;
+    color: black;
+    overflow: auto;
     font-family: sans-serif;
     white-space: pre;
+    text-align: left;
     padding: 2px;
-    background: rgba(210, 215, 211, 0.6);
+    background: rgba(210, 215, 211, 0.5);
 }

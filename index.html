@@ -75,7 +75,7 @@
                 fetch(`https://powerful-woodland-32319.herokuapp.com/db?long=${long}&lat=${lat}`)
                     .then(response => response.json())
                     .then(json => {
-                        // console.log(json);
+                        console.log(json);
                         // end of pluto loading test
                         const t1 = performance.now();
                         info.textContent = `loaded ${json.length} pluto in ${t1-t0} ms \naccuracy: ${acc} meters`;
@@ -94,6 +94,10 @@
             // three.js init(), onWindowResize, animate, render functions
             
             function init(sm_crds, sp_crds, json) {
+
+                // testing encoding the json
+                var encodedGeojson = encodeURI(`${json[1].geometry}`);
+                console.log(encodedGeojson);
 
                 const once = {
                     once: true
@@ -160,6 +164,10 @@
                     }
                     offset = compassDir * (Math.PI/180);
                     
+                    // testing encoding the json
+                    // var encodedGeojson = encodeURIComponent(`${json}`);
+                    // console.log(encodedGeojson);
+
                     for (const each of json) {
                         var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0x00feef } );
                         var pluto_location = new THREE.Mesh( pluto_geometry, plutoMaterial );
@@ -295,25 +303,25 @@
                     for ( let i = 0; i < intersects.length ; i++ ) {
                         intersects[ i ].object.material.color.set( 0xff10f0 );
                         objects.push(intersects[i]);
-                        info.innerText = `${Object.entries(intersects[ i ].object.userData).join("\n")}`;
+                        info.innerText = "nothing for now...";
 
                         // PLANE with TEXT TESTING:
 
                         const planeGeometry = new THREE.PlaneGeometry( 0.5, 0.5 );
                         const textBacking = new THREE.MeshBasicMaterial( {transparent: true, opacity: 0.3, color: 0xffffff, side: THREE.DoubleSide} );
                         const textPlane = new THREE.Mesh( planeGeometry, textBacking );
-                        textPlane.position.set( 0.5, 0, -0.5 );
-                        textPlane.rotateY( -(45 * Math.PI) / 180 );
+                        textPlane.position.set( 0.6, 0.3, -2 );
+                        // textPlane.rotateY( -(45 * Math.PI) / 180 );
                         scene.add( textPlane );
 
                         const planeDiv = document.createElement( 'div' );
                         planeDiv.className = 'label';
-                        planeDiv.textContent = `This is a test of the CSS2DRenderer Class. \n Hoping the lines break. \n Really hoping...`;
-                        planeDiv.style.marginTop = '-1em';
-                        planeDiv.style.color = 'black';
-                        planeDiv.style.background = 'red';
+                        planeDiv.textContent = `${Object.entries(intersects[ i ].object.userData).join("\n")}`;
+                        // planeDiv.style.marginTop = '-1em';
+                        // planeDiv.style.background = 'red';
                         const planeLabel = new CSS2DObject( planeDiv );
-                        textPlane.add( planeLabel );
+                        intersects[i].object.add( planeLabel );
+                        // textPlane.add( planeLabel );
                         // planeLabel.layers.set( 1 ); 
 
                         //end of test
