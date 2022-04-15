@@ -99,17 +99,20 @@
             function init(long, lat, sm_crds, sp_crds, json) {
 
                 // testing encoding the jsons geojson features
-                // for(let each = 0; each < json.length; each++) {
+                var geojsonStart = `{"type":"Feature","geometry":`;
+                var geojsonEnd = `,"properties":{"stroke":"#00FEEF", "fill":"#00FEEF"}}`;
+                for(let each = 0; each < json.length; each++) {
 
-                //     geojsons.push(json[each].geojson);
-                // }
+                    geojsons.push(geojsonStart + json[each].geojson + geojsonEnd);
+                }
                 // console.log(geojsons);
 
-                var test_json = `{"Features": [{"type":"Polygon","coordinates":[[[-73.965133688,4…054,40.768394043],[-73.965133688,40.768218479]]]}', '{"type":"Polygon","coordinates":[[[-73.963765854,4…871,40.769022288],[-73.963765854,40.768462437]]]}', '{"type":"Polygon","coordinates":[[[-73.964734175,4…688,40.768218479],[-73.964734175,40.768050216]]]}]}`;
-                var encodeTest = encodeURIComponent(`${test_json}`);
-                console.log(encodeTest);
+                var geojson = `{"type: "FeatureCollection", "features":[${geojsons}]}`;
+                // console.log(geojson);
+                encodedGeojson = encodeURIComponent(`${geojson}`);
+                console.log(encodedGeojson);
                 var originalGeojson = encodeURIComponent(`${json[0].geojson}`);
-                encodedGeojson = encodeURIComponent(`${geojsons}`)
+                
                 console.log(originalGeojson);
                 // console.log(encodedGeojson);
 
