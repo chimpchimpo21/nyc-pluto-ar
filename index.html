@@ -4,12 +4,15 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
         <link type="text/css" rel="stylesheet" href="styles.css">
+        <!-- js package to handle crs projections -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
         <title>Nearby PLUTO lots</title>
     </head>
     <body>  
         <pre id = "info">Tap 'START AR' Button</pre>
+        <!-- js package to handle imports of three.js modules -->
         <script async src="https://unpkg.com/es-module-shims@1.4.7/dist/es-module-shims.js"></script>
+        <!-- set import map variables -->
         <script type="importmap">
             {
               "imports": {
@@ -19,41 +22,50 @@
               }
             }
         </script>
-        <!--SCRIPT FOR THREE.js MODULE-->
+        <!--Main script for AR application-->
         <script type="module">
-            
+            // import needed three.js modules from the import map
             import * as THREE from 'three';
             import { ARButton } from 'arbutton';
             import { CSS2DRenderer, CSS2DObject } from 'css2drenderer';
             
+            // declare variable for start time to measure application load performance
             var t0 = 0;
 
-            // variable pointing to DOM 'info' element
+            // declare variable pointing to DOM 'info' element
             const info = document.getElementById( 'info' );
 
-            // declare container, camera, scene, renderer
+            // declare container, camera, controller, scene, renderer, labelRenderer
             var container;
             var camera, controller, scene, renderer, labelRenderer;
 
+            // declare array to group returned geometry geojsons; variables for URI encoded geojson and texture to be used as static 2D map
             var geojsons = [];
             var encodedGeojson, texture;
 
+            // declare variable for tracking if Android magnetometer was handled; array for PLUTO cubes that have been tapped
             var magnet = 0;
             var objects = [];
 
+            // declare three.js pointer vector and three.js raycaster object for tracing vector from screen tap to object's the scene
             const pointer = new THREE.Vector2();
             const raycaster = new THREE.Raycaster();
 
-            // declare epsg
+            // declare crs epsg definitions
             const epsg_sm = 'EPSG:3857';
             const epsg_sp = '+proj=lcc +lat_1=41.03333333333333 +lat_2=40.66666666666666 +lat_0=40.16666666666666 +lon_0=-74 +x_0=300000.0000000001 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=us-ft +no_defs';
 
-            //determine user geolocation:
+            // ########## APPLICATION PART 1: Determine User's Geolocation ##########
+            // declare Geolocation object variables for obtaining more accurate position (mostly for Android devices)
             var options = {
                     enableHighAccuracy: true,
                     maximumAge: 0
                 };
             
+            // function runs if Geolocation is successful (leads to next two parts of application)
+            // This function creates variables of the user's positional coordinates and then converts them to 
+            // two other EPSG's (3857, 2263) before sending the user's long/lat coordinates to the API.
+
             function success(pos) {
                 var crd = pos.coords;
                 // console.log(pos);
@@ -65,30 +77,36 @@
                 var sm_crds = proj4(epsg_sm, coords);
                 var sp_crds = proj4(epsg_sp, coords);
                 // fetch request to query postgres db for PLUTO tax lots within 50 meters of user's current location
-                // unit for testing speed of loading the pluto data
+                // assign performance variable to timestamp to start load performance check
                 t0 = performance.now();
-                // pluto loading speed
+
+                // ########## APPLICATION PART 2: API Request ##########
+                // fetch() request to the API including the user's long/lat coordinates
                 fetch(`https://powerful-woodland-32319.herokuapp.com/db?long=${long}&lat=${lat}`)
+                    // response from server is converted to JSON format
                     .then(response => response.json())
                     .then(json => {
-                        console.log(json);
-                        // end of pluto loading test
+                        // console.log(json);
+                        // declare second performance variable to calculate the stop of the PLUTO loading
                         const t1 = performance.now();
                         info.textContent = `loaded ${json.length} pluto in ${t1-t0} ms \naccuracy: ${acc} meters`;
-                        // info.textContent = `accuracy: ${acc} meters`;
+                        // ########## APPLICATION PART 3: THREE.JS AR SCENE ##########
+                        // init() sets up the AR scene using the coordinates of the user, along with their projected coordinates and the PLUTO data in JSON format
                         init(long, lat, sm_crds, sp_crds, json);
+                        // animate() renders the scene in real-time
                         animate();
                     })
             }
-            
+            // function runs if there is an error sent from Geolocation API request
             function error(err) {
                 console.warn(`ERROR(${err.code}): ${err.message}`);
             }
-            
+            // this initializes the Geolocation API request and tells the script what to do depending on the status of the request
             navigator.geolocation.getCurrentPosition(success, error, [options]);
 
             // three.js init(), onWindowResize, animate, render functions
             
+            // function to initialize the THREE.js AR scene
             function init(long, lat, sm_crds, sp_crds, json) {
 
                 // testing encoding the jsons geojson features
@@ -202,19 +220,6 @@
                     }
 
                     scene.rotation.y = offset;
-
-                    // test adding PLUTO text backing plane to scene
-                    // var planeGeometry = new THREE.PlaneGeometry( 0.5, 0.5 );
-                    // var textBacking = new THREE.MeshBasicMaterial( {transparent: true, opacity: 0.3, color: 0xffffff, side: THREE.DoubleSide} );
-                    // var textPlane = new THREE.Mesh( planeGeometry, textBacking );
-                    
-                    // textPlane.position.set( -0.5, -0.25, 0 ).applyMatrix4( controller.matrixWorld );
-                    // pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
-                    // textPlane.rotateY( (90 * Math.PI) / 180 );
-                    // //  
-                    // // textPlane.rotation.z = ( (180 * Math.PI) / 180 );
-                    // scene.add( textPlane ); 
-                    // end of test
                     scene.add( group );
                 }
                 
@@ -259,10 +264,7 @@
                     }
                 }
 
-                    // checkOrientation function to decide if iPhone or Android is seeking orientation
-
-                    // function to check orientation device type and send to appropriate orientation/rotation function
-
+                // function to check orientation device type and send to appropriate orientation/rotation function
                 function checkOrientation() {
 
                     // console.log('starting to check orientation');
@@ -283,6 +285,8 @@
                 document.addEventListener( 'pointerup', onTouchUp, false );
             }
 
+            // function to handle interaction events when user taps the screen including highlighting the appropriate
+            // PLUTO cube, displaying its attribute information, and rendering the 2D context map
             function onTouchUp( event ) {
 
                 pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
@@ -343,6 +347,7 @@
                 }
             }
             
+            // these functions render the scene continuously
             function animate() {
 
                 renderer.setAnimationLoop( render );
