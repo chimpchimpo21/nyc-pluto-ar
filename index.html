@@ -107,16 +107,15 @@
                 }
                 // console.log(geojsons);
 
-                var geojson = `{"type: "FeatureCollection", "features":[${geojsons}]}`;
-                // console.log(geojson);
+                var geojson = `{"type": "FeatureCollection", "features":[${geojsons}]}`;
+                console.log(geojson);
                 encodedGeojson = encodeURIComponent(`${geojson}`);
-                console.log(encodedGeojson);
-                var originalGeojson = encodeURIComponent(`${json[0].geojson}`);
                 
+                var originalGeojson = encodeURIComponent(`${json[0].geojson}`);
                 console.log(originalGeojson);
                 // console.log(encodedGeojson);
 
-                texture = new THREE.TextureLoader().load( `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${originalGeojson})/${long},${lat},18/1280x1280?access_token=pk.eyJ1IjoibW93YXJkMTIiLCJhIjoiY2ttMHFkbzd0MDJlZTJxbXNyNGxzZGJzaSJ9.KyxNm2KzwhMm0YPhU4sARg` );
+                texture = new THREE.TextureLoader().load( `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${encodedGeojson})/${long},${lat},18/1280x1280?access_token=pk.eyJ1IjoibW93YXJkMTIiLCJhIjoiY2ttMHFkbzd0MDJlZTJxbXNyNGxzZGJzaSJ9.KyxNm2KzwhMm0YPhU4sARg` );
 
                 const once = {
                     once: true
