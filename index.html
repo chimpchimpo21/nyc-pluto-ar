@@ -39,17 +39,37 @@
             var container;
             var camera, controller, scene, renderer, labelRenderer;
 
+            // test to declare variable copy of json promise
+            var long;
+            var lat;
+            var Json;
+            // test to declare start and end of geojson text format;
+            var geojsonStart = `{"type":"Feature","geometry":`;
+            var geojsonEnd = `,"properties":{"stroke":"#00FEEF", "fill":"#00FEEF"}}`;
+
             // declare array to group returned geometry geojsons; variables for URI encoded geojson and texture to be used as static 2D map
             var geojsons = [];
             var encodedGeojson, texture;
 
-            // declare variable for tracking if Android magnetometer was handled; array for PLUTO cubes that have been tapped
+            // declare map group variable
+            var mapGroup = new THREE.Group();
+
+            // declare variable for tracking if Android magnetometer was handled; array for PLUTO cubes that have been tapped; array for PLUTO cubes that have been created
             var magnet = 0;
             var objects = [];
+            var cubes = [];
 
             // declare three.js pointer vector and three.js raycaster object for tracing vector from screen tap to object's the scene
             const pointer = new THREE.Vector2();
             const raycaster = new THREE.Raycaster();
+
+            // declare element to hold PLUTO attribute text and create CSS2DObject of the element to appear in the AR scene
+            const planeDiv = document.createElement( 'div' );
+            planeDiv.className = 'label';
+            const planeLabel = new CSS2DObject( planeDiv );
+
+            // declare 2D map geometry
+            const mapGeometry = new THREE.PlaneGeometry( 0.5, 0.5 );
 
             // declare crs epsg definitions
             const epsg_sm = 'EPSG:3857';
@@ -71,8 +91,8 @@
                 // console.log(pos);
                 var acc = crd.accuracy;
                 // console.log(acc);
-                var long = crd.longitude;
-                var lat = crd.latitude;
+                long = crd.longitude;
+                lat = crd.latitude;
                 var coords = [long, lat]
                 var sm_crds = proj4(epsg_sm, coords);
                 var sp_crds = proj4(epsg_sp, coords);
@@ -86,6 +106,7 @@
                     // response from server is converted to JSON format
                     .then(response => response.json())
                     .then(json => {
+                        Json = json;
                         // console.log(json);
                         // declare second performance variable to calculate the stop of the PLUTO loading
                         const t1 = performance.now();
@@ -119,14 +140,17 @@
                 // console.log(geojsons);
 
                 var geojson = `{"type": "FeatureCollection", "features":[${geojsons}]}`;
-                console.log(geojson);
+                // console.log(geojson);
                 encodedGeojson = encodeURIComponent(`${geojson}`);
-                
-                // var originalGeojson = encodeURIComponent(`${json[0].geojson}`);
-                // console.log(originalGeojson);
-                // console.log(encodedGeojson);
 
                 texture = new THREE.TextureLoader().load( `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${encodedGeojson})/${long},${lat},18/1280x1280?access_token=pk.eyJ1IjoibW93YXJkMTIiLCJhIjoiY2ttMHFkbzd0MDJlZTJxbXNyNGxzZGJzaSJ9.KyxNm2KzwhMm0YPhU4sARg` );
+
+                const textBacking = new THREE.MeshBasicMaterial( {map: texture, transparent: true, opacity: 0.6, color: 0xffffff, side: THREE.DoubleSide} );
+                const mapPlane = new THREE.Mesh( mapGeometry, textBacking );
+                mapGroup.add( mapPlane );
+                mapPlane.position.set( 0.5, 0, -1 );
+                // scene.add( mapPlane );
+
 
                 const once = {
                     once: true
@@ -142,7 +166,7 @@
                 document.body.appendChild( container );
 
                 scene = new THREE.Scene();
-                const group = new THREE.Group();
+                // const group = new THREE.Group();
 
                 camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 100 );
 
@@ -150,7 +174,7 @@
                 // light.position.set( 0, 10, 0 );
                 scene.add( light );
 
-                //
+                // scene renderer
 
                 renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
                 renderer.setPixelRatio( window.devicePixelRatio );
@@ -158,14 +182,14 @@
                 renderer.xr.enabled = true;
                 container.appendChild( renderer.domElement );
 
-                // label Renderer TESTING*****************************************************************
+                // label Renderer 
                 labelRenderer = new CSS2DRenderer();
                 labelRenderer.setSize( window.innerWidth, window.innerHeight );
                 labelRenderer.domElement.style.position = 'absolute';
                 labelRenderer.domElement.style.top = '0px';
                 document.body.appendChild( labelRenderer.domElement );
 
-                // END OF TESTING*************************************************************************
+                // ARButton to load scene
 
                 document.body.appendChild( ARButton.createButton( renderer, {
                     optionalFeatures: [ 'dom-overlay', 'dom-overlay-for-handheld-ar' ],
@@ -196,6 +220,7 @@
                     // testing encoding the json
                     // var encodedGeojson = encodeURIComponent(`${json}`);
                     // console.log(encodedGeojson);
+                    var group = new THREE.Group();
 
                     for (const each of json) {
                         var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0x00feef } );
@@ -218,9 +243,13 @@
                         // scene.add( pluto_location );
                         group.add( pluto_location );
                     }
-
+                    cubes.push( group );
                     scene.rotation.y = offset;
+                    scene.add( mapGroup );
+                    mapPlane.rotation.y += -offset;
+                    mapPlane.lookAt( 0, 0, 0 );
                     scene.add( group );
+                    document.addEventListener( 'pointerup', onTouchUp, false );
                 }
                 
                 function handleOrientation(event) {
@@ -281,8 +310,7 @@
                     }
                 }
 
-                // document.addEventListener( 'pointerup', startOrient, once );
-                document.addEventListener( 'pointerup', onTouchUp, false );
+                // document.addEventListener( 'pointerup', onTouchUp, false );
             }
 
             // function to handle interaction events when user taps the screen including highlighting the appropriate
@@ -293,15 +321,20 @@
                 pointer.y = -( event.clientY / window.innerHeight ) * 2 + 1;
                 // console.log(pointer.x, pointer.y);
                 raycaster.setFromCamera( pointer, camera );
-                var intersects = raycaster.intersectObjects( scene.children );
-                if (intersects.length === 0) {
+                var intersects = raycaster.intersectObjects( cubes );
+                if (intersects.length < 1) {
                     // needs to clear the div of info
                     info.innerText = 'PLUTO information displays here';
                     for (let i = 0; i < objects.length; i++) {
                         // info.innerText = objects[i].object.material.color;
                         objects[i].object.material.color.set( 0x00feef );
+                        objects[i].object.remove( planeLabel );
                         objects.pop();
                     }
+
+                    // call function to reset map texture to original texture
+                    resetMap();
+
                     pointer.x = null;
                     pointer.y = null;
                     // console.log(pointer.x, pointer.y);
@@ -311,40 +344,65 @@
 
                     for (let i = 0; i < objects.length; i++) {
                             objects[i].object.material.color.set( 0x00feef );
+                            objects[i].object.remove( planeLabel );
                             objects.pop();
                     }
                     info.innerText = '';
                         
                     for ( let i = 0; i < intersects.length ; i++ ) {
-                        intersects[ i ].object.material.color.set( 0xff10f0 );
-                        objects.push(intersects[i]);
-                        info.innerText = "nothing for now...";
+                        intersects[i].object.material.color.set( 0xff10f0 );
 
-                        // PLANE with TEXT TESTING:
+                        planeDiv.textContent = `${Object.entries(intersects[i].object.userData).join("\n")}`;
 
-                        const planeGeometry = new THREE.PlaneGeometry( 0.5, 0.5 );
-                        const textBacking = new THREE.MeshBasicMaterial( {map: texture, transparent: true, opacity: 0.6, color: 0xffffff, side: THREE.DoubleSide} );
-                        const textPlane = new THREE.Mesh( planeGeometry, textBacking );
-                        textPlane.position.set( -0.5, 0.3, -0.5 );
-                        // textPlane.rotateY( -(45 * Math.PI) / 180 );
-                        scene.add( textPlane );
-
-                        const planeDiv = document.createElement( 'div' );
-                        planeDiv.className = 'label';
-                        planeDiv.textContent = `${Object.entries(intersects[ i ].object.userData).join("\n")}`;
-                        // planeDiv.style.marginTop = '-1em';
-                        // planeDiv.style.background = 'red';
-                        const planeLabel = new CSS2DObject( planeDiv );
                         intersects[i].object.add( planeLabel );
-                        // textPlane.add( planeLabel );
-                        // planeLabel.layers.set( 1 ); 
 
-                        //end of test
+                        // end of test
 
-
-
+                        objects.push(intersects[i]);
+                        // info.innerText = encodedGeojson;
+                        updateMap(intersects[i].object.userData);
                     }
                 }
+            }
+
+            function updateMap(selectedGeojson) {
+
+                // info.innerText = selectedGeojson[98][1];
+                var highlightedGeojsons = [];
+                var newEnding = `,"properties":{"stroke":"#FF10F0", "fill":"#FF10F0"}}`;
+ 
+                var highlightedLot = geojsonStart + selectedGeojson[98][1] +  newEnding;
+                // info.innerText = highlightedLot;
+
+                for(let each = 0; each < Json.length; each++) {
+
+                    highlightedGeojsons.push(geojsonStart + Json[each].geojson + geojsonEnd);
+                    
+                }
+                highlightedGeojsons.push(highlightedLot);
+
+                var highlightedGeojson = `{"type": "FeatureCollection", "features":[${highlightedGeojsons}]}`;
+                var highlightedEncodedGeojson = encodeURIComponent(`${highlightedGeojson}`); 
+                // info.innerText = highlightedEncodedGeojson;
+                texture = new THREE.TextureLoader().load( `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${highlightedEncodedGeojson})/${long},${lat},18/1280x1280?access_token=pk.eyJ1IjoibW93YXJkMTIiLCJhIjoiY2ttMHFkbzd0MDJlZTJxbXNyNGxzZGJzaSJ9.KyxNm2KzwhMm0YPhU4sARg` );
+
+                mapGroup.children.forEach( child => {
+                    child.material.map = texture;
+                    child.material.needsUpdate = true;
+                    child.material.map.needsUpdate = true;
+                });
+
+            }
+
+            function resetMap() {
+
+                texture = new THREE.TextureLoader().load( `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${encodedGeojson})/${long},${lat},18/1280x1280?access_token=pk.eyJ1IjoibW93YXJkMTIiLCJhIjoiY2ttMHFkbzd0MDJlZTJxbXNyNGxzZGJzaSJ9.KyxNm2KzwhMm0YPhU4sARg` );
+
+                mapGroup.children.forEach( child => {
+                    child.material.map = texture; 
+                    child.material.map.needsUpdate = true;
+                    info.innerText = 'hello?';
+                });
             }
             
             // these functions render the scene continuously
