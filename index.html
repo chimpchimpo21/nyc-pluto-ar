@@ -104,7 +104,7 @@
 
                 // ########## APPLICATION PART 2: API Request ##########
                 // fetch() request to the API including the user's long/lat coordinates
-                fetch(`https://powerful-woodland-32319.herokuapp.com/db?long=${long}&lat=${lat}`)
+                fetch(`https://nyc-pluto-ar.herokuapp.com/db?long=${long}&lat=${lat}`)
                     // response from server is converted to JSON format
                     .then(response => response.json())
                     .then(json => {
