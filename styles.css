@@ -1,17 +1,25 @@
 body {
-    background-color: #00FFBF;
+    background-color: #0c0c0c;
+    color:rgb(249, 247, 248);
     font-family: 'Courier New', Courier, monospace;
     font-size: 13px;
     overscroll-behavior: none;
     text-align: center;
 }
-
+#exp {
+    width: 98vw;
+    font-family: monospace;
+    text-align: left;
+    line-height: 1.6;
+}
 #info {
-    height: 70px;
-    overflow: auto;
-    background-color: rgb(255, 0, 212);
+    height: 55px;
+    padding: 15px;
+    justify-content: center;
+    background-color: rgb(249, 247, 248);
     font-family: monospace;
     font-size: 14px;
+    text-align: center;
     white-space: pre;
     color: black;
 }

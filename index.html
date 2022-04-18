@@ -9,7 +9,8 @@
         <title>Nearby PLUTO lots</title>
     </head>
     <body>  
-        <pre id = "info">Tap 'START AR' Button</pre>
+        <pre id = "info">Loading</pre>
+        <div id = "exp"><br>This is an application to view NYC's PLUTO dataset in augmented reality.<br><br> Tap the <span style="color: #00feef">cyan</span> cubes to view that property's PLUTO information. A selected cube turns <span style="color: #ff10f0">magenta</span>.<br>You can use your finger to scroll through the information overlaid on the screen.<br>Look around to find a 2D map showing all the PLUTO lots that loaded and the currently selected lot.<br>Tap anywhere besides a cube to clear the currently displayed PLUTO information.</div>
         <!-- js package to handle imports of three.js modules -->
         <script async src="https://unpkg.com/es-module-shims@1.4.7/dist/es-module-shims.js"></script>
         <!-- set import map variables -->
@@ -32,8 +33,9 @@
             // declare variable for start time to measure application load performance
             var t0 = 0;
 
-            // declare variable pointing to DOM 'info' element
+            // declare variable pointing to DOM 'info' element and 'exp' element
             const info = document.getElementById( 'info' );
+            const exp = document.getElementById( 'exp' );
 
             // declare container, camera, controller, scene, renderer, labelRenderer
             var container;
@@ -110,7 +112,7 @@
                         // console.log(json);
                         // declare second performance variable to calculate the stop of the PLUTO loading
                         const t1 = performance.now();
-                        info.textContent = `loaded ${json.length} pluto in ${t1-t0} ms \naccuracy: ${acc} meters`;
+                        info.textContent = `loaded ${json.length} pluto in ${t1-t0} ms \naccuracy: ${acc} meters\nTap 'Start AR' Button`;
                         // ########## APPLICATION PART 3: THREE.JS AR SCENE ##########
                         // init() sets up the AR scene using the coordinates of the user, along with their projected coordinates and the PLUTO data in JSON format
                         init(long, lat, sm_crds, sp_crds, json);
@@ -211,22 +213,19 @@
 
                 function handleiOSOrientation(event) {
                     // info.innerText = "iOS detected"
+                    info.style.display = "none";
+                    exp.style.display = "none";
                     var compassDir = event.webkitCompassHeading;
                     if (compassDir === 0) {
                         checkOrientation();
                     }
                     offset = compassDir * (Math.PI/180);
                     
-                    // testing encoding the json
-                    // var encodedGeojson = encodeURIComponent(`${json}`);
-                    // console.log(encodedGeojson);
                     var group = new THREE.Group();
 
                     for (const each of json) {
                         var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0x00feef } );
                         var pluto_location = new THREE.Mesh( pluto_geometry, plutoMaterial );
-                        
-                        // pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
                         
                         // spherical mercator positioning
 
@@ -254,9 +253,12 @@
                 
                 function handleOrientation(event) {
                     // info.innerText = "Android detected"
+                    info.style.display = "none";
+                    exp.style.display = "none";
                     var alpha = event.alpha;
                     var absolute = event.absolute;
                     if (absolute != "true" && magnet === 0) {
+                        info.style.display = "inline"
                         magnet = 1;
                         window.addEventListener( 'pointerup', handleNonOrientation, once);
                         info.innerText = `No magnetometer detected. \nPlease face 'north' now. \nPlease tap screen to reload.`;
@@ -267,30 +269,44 @@
                             var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0x00feef } );
                             var pluto_location = new THREE.Mesh( pluto_geometry, plutoMaterial );
 
-                            pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y).applyMatrix4( controller.matrixWorld );
+                            pluto_location.position.set((each.st_x-sp_crds[0])*0.3048, 0, (sp_crds[1]-each.st_y)*0.3048).applyMatrix4( controller.matrixWorld );
                             pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
 
                             pluto_location.userData = Object.entries(each);
                             
-                            scene.add( pluto_location );
+                            group.add( pluto_location );
                         }
+                        cubes.push( group );
                         scene.rotation.y = -offset;
+                        scene.add( mapGroup );
+                        mapPlane.rotation.y += -offset;
+                        mapPlane.lookAt( 0, 0, 0 );
+                        scene.add( group );
+                        document.addEventListener( 'pointerup', onTouchUp, false );
                     }
                 }
 
                 function handleNonOrientation(event) {
+                    info.style.display = "none";
+                    exp.style.display = "none";
                     for (const each of json) {
                         var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0x00feef } );
                         var pluto_location = new THREE.Mesh( pluto_geometry, plutoMaterial );
                         // pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y);
 
-                        pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y).applyMatrix4( controller.matrixWorld );
+                        pluto_location.position.set((each.st_x-sp_crds[0])*0.3048, 0, (sp_crds[1]-each.st_y)*0.3048).applyMatrix4( controller.matrixWorld );
                         pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
 
                         pluto_location.userData = Object.entries(each);
                         
-                        scene.add( pluto_location );
+                        group.add( pluto_location );
                     }
+                    cubes.push( group );
+                    scene.add( mapGroup );
+                    mapPlane.rotation.y += -offset;
+                    mapPlane.lookAt( 0, 0, 0 );
+                    scene.add( group );
+                    document.addEventListener( 'pointerup', onTouchUp, false );
                 }
 
                 // function to check orientation device type and send to appropriate orientation/rotation function
