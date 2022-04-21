@@ -353,7 +353,7 @@
                     // }
                     lastTappedCube.remove( planeLabel );
                     cubeGroup.children.forEach( child => {
-                        child.material.color.setHex( 0x00feef );
+                        child.material.color.set( 0x00feef );
                         child.material.needsUpdate = true;
                     });
 
@@ -374,13 +374,13 @@
                     // });
 
                     for (let i = 0; i < objects.length; i++) {
-                            objects[i].object.material.color.setHex( 0x00feef );
+                            objects[i].object.material.color.set( 0x00feef );
                             objects[i].object.remove( planeLabel );
                             objects.pop();
                     }
                     // info.innerText = '';
                         
-                    for ( let i = 0; i < 1 ; i++ ) {
+                    for ( let i = 0; i < intersects.length ; i++ ) {
                         
                         intersects[i].object.material.color.set( 0xff10f0 );
 
