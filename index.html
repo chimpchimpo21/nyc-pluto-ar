@@ -55,6 +55,7 @@
 
             // declare map group variable
             var mapGroup = new THREE.Group();
+            var cubeGroup = new THREE.Group();
 
             // declare variable for tracking if Android magnetometer was handled; array for PLUTO cubes that have been tapped; array for PLUTO cubes that have been created
             var magnet = 0;
@@ -69,6 +70,9 @@
             const planeDiv = document.createElement( 'div' );
             planeDiv.className = 'label';
             const planeLabel = new CSS2DObject( planeDiv );
+
+            // declare reference to cube with attribute info most recently displayed
+            var lastTappedCube;
 
             // declare 2D map geometry
             const mapGeometry = new THREE.PlaneGeometry( 0.5, 0.5 );
@@ -221,7 +225,7 @@
                     }
                     offset = compassDir * (Math.PI/180);
                     
-                    var group = new THREE.Group();
+                    // var group = new THREE.Group();
 
                     for (const each of json) {
                         var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0x00feef } );
@@ -240,14 +244,15 @@
                         pluto_location.userData = Object.entries(each);
                         
                         // scene.add( pluto_location );
-                        group.add( pluto_location );
+                        cubeGroup.add( pluto_location );
                     }
-                    cubes.push( group );
+                    // cubes.push( group );
+                    cubes.push( cubeGroup );
                     scene.rotation.y = offset;
                     scene.add( mapGroup );
                     mapPlane.rotation.y += -offset;
                     mapPlane.lookAt( 0, 0, 0 );
-                    scene.add( group );
+                    scene.add( cubeGroup );
                     document.addEventListener( 'pointerup', onTouchUp, false );
                 }
                 
@@ -340,13 +345,17 @@
                 var intersects = raycaster.intersectObjects( cubes );
                 if (intersects.length < 1) {
                     // needs to clear the div of info
-                    info.innerText = 'PLUTO information displays here';
-                    for (let i = 0; i < objects.length; i++) {
-                        // info.innerText = objects[i].object.material.color;
-                        objects[i].object.material.color.set( 0x00feef );
-                        objects[i].object.remove( planeLabel );
-                        objects.pop();
-                    }
+                    // for (let i = 0; i < objects.length; i++) {
+                    //     // info.innerText = objects[i].object.material.color;
+                    //     objects[i].object.material.color.set( 0x00feef );
+                    //     objects[i].object.remove( planeLabel );
+                    //     objects.pop();
+                    // }
+                    lastTappedCube.remove( planeLabel );
+                    cubeGroup.children.forEach( child => {
+                        child.material.color.setHex( 0x00feef );
+                        child.material.needsUpdate = true;
+                    });
 
                     // call function to reset map texture to original texture
                     resetMap();
@@ -358,20 +367,27 @@
 
                     // TESTING SECTION!!
 
+                    // lastTappedCube.remove( planeLabel );
+                    // cubeGroup.children.forEach( child => {
+                    //     child.material.color.setHex( 0x00feef );
+                    //     child.material.needsUpdate = true;
+                    // });
+
                     for (let i = 0; i < objects.length; i++) {
-                            objects[i].object.material.color.set( 0x00feef );
+                            objects[i].object.material.color.setHex( 0x00feef );
                             objects[i].object.remove( planeLabel );
                             objects.pop();
                     }
-                    info.innerText = '';
+                    // info.innerText = '';
                         
-                    for ( let i = 0; i < intersects.length ; i++ ) {
+                    for ( let i = 0; i < 1 ; i++ ) {
+                        
                         intersects[i].object.material.color.set( 0xff10f0 );
 
                         planeDiv.textContent = `${Object.entries(intersects[i].object.userData).join("\n")}`;
 
                         intersects[i].object.add( planeLabel );
-
+                        lastTappedCube = intersects[i].object;
                         // end of test
 
                         objects.push(intersects[i]);
@@ -417,7 +433,6 @@
                 mapGroup.children.forEach( child => {
                     child.material.map = texture; 
                     child.material.map.needsUpdate = true;
-                    info.innerText = 'hello?';
                 });
             }
             
