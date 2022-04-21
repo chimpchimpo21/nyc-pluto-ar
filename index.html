@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-        <link type="text/css" rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="styles.css">
         <!-- js package to handle crs projections -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
         <title>Nearby PLUTO lots</title>
@@ -224,8 +224,6 @@
                         checkOrientation();
                     }
                     offset = compassDir * (Math.PI/180);
-                    
-                    // var group = new THREE.Group();
 
                     for (const each of json) {
                         var plutoMaterial = new THREE.MeshBasicMaterial( { color: 0x00feef } );
@@ -279,14 +277,14 @@
 
                             pluto_location.userData = Object.entries(each);
                             
-                            group.add( pluto_location );
+                            cubeGroup.add( pluto_location );
                         }
-                        cubes.push( group );
+                        cubes.push( cubeGroup );
                         scene.rotation.y = -offset;
                         scene.add( mapGroup );
                         mapPlane.rotation.y += -offset;
                         mapPlane.lookAt( 0, 0, 0 );
-                        scene.add( group );
+                        scene.add( cubeGroup );
                         document.addEventListener( 'pointerup', onTouchUp, false );
                     }
                 }
@@ -304,13 +302,13 @@
 
                         pluto_location.userData = Object.entries(each);
                         
-                        group.add( pluto_location );
+                        cubeGroup.add( pluto_location );
                     }
-                    cubes.push( group );
+                    cubes.push( cubeGroup );
                     scene.add( mapGroup );
                     mapPlane.rotation.y += -offset;
                     mapPlane.lookAt( 0, 0, 0 );
-                    scene.add( group );
+                    scene.add( cubeGroup );
                     document.addEventListener( 'pointerup', onTouchUp, false );
                 }
 
@@ -330,8 +328,6 @@
                         window.addEventListener( 'deviceorientation', handleOrientation, once);
                     }
                 }
-
-                // document.addEventListener( 'pointerup', onTouchUp, false );
             }
 
             // function to handle interaction events when user taps the screen including highlighting the appropriate
@@ -344,13 +340,7 @@
                 raycaster.setFromCamera( pointer, camera );
                 var intersects = raycaster.intersectObjects( cubes );
                 if (intersects.length < 1) {
-                    // needs to clear the div of info
-                    // for (let i = 0; i < objects.length; i++) {
-                    //     // info.innerText = objects[i].object.material.color;
-                    //     objects[i].object.material.color.set( 0x00feef );
-                    //     objects[i].object.remove( planeLabel );
-                    //     objects.pop();
-                    // }
+                    // needs to set all cubes to original color
                     lastTappedCube.remove( planeLabel );
                     cubeGroup.children.forEach( child => {
                         child.material.color.set( 0x00feef );
@@ -362,23 +352,18 @@
 
                     pointer.x = null;
                     pointer.y = null;
-                    // console.log(pointer.x, pointer.y);
                 } else {
 
-                    // TESTING SECTION!!
-
-                    // lastTappedCube.remove( planeLabel );
-                    // cubeGroup.children.forEach( child => {
-                    //     child.material.color.setHex( 0x00feef );
-                    //     child.material.needsUpdate = true;
-                    // });
-
-                    for (let i = 0; i < objects.length; i++) {
-                            objects[i].object.material.color.set( 0x00feef );
+                    if (objects.length > 0) {
+                        for (let i = 0; i < objects.length; i++) {
                             objects[i].object.remove( planeLabel );
                             objects.pop();
+                        }
+                        cubeGroup.children.forEach( child => {
+                        child.material.color.set( 0x00feef );
+                        child.material.needsUpdate = true;
+                        })
                     }
-                    // info.innerText = '';
                         
                     for ( let i = 0; i < intersects.length ; i++ ) {
                         
@@ -391,7 +376,7 @@
                         // end of test
 
                         objects.push(intersects[i]);
-                        // info.innerText = encodedGeojson;
+                        // call function to highlight tapped cube's tax lot boundary on the 2D map
                         updateMap(intersects[i].object.userData);
                     }
                 }
@@ -399,12 +384,10 @@
 
             function updateMap(selectedGeojson) {
 
-                // info.innerText = selectedGeojson[98][1];
                 var highlightedGeojsons = [];
                 var newEnding = `,"properties":{"stroke":"#FF10F0", "fill":"#FF10F0"}}`;
  
                 var highlightedLot = geojsonStart + selectedGeojson[98][1] +  newEnding;
-                // info.innerText = highlightedLot;
 
                 for(let each = 0; each < Json.length; each++) {
 
@@ -415,7 +398,7 @@
 
                 var highlightedGeojson = `{"type": "FeatureCollection", "features":[${highlightedGeojsons}]}`;
                 var highlightedEncodedGeojson = encodeURIComponent(`${highlightedGeojson}`); 
-                // info.innerText = highlightedEncodedGeojson;
+
                 texture = new THREE.TextureLoader().load( `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(${highlightedEncodedGeojson})/${long},${lat},18/1280x1280?access_token=pk.eyJ1IjoibW93YXJkMTIiLCJhIjoiY2ttMHFkbzd0MDJlZTJxbXNyNGxzZGJzaSJ9.KyxNm2KzwhMm0YPhU4sARg` );
 
                 mapGroup.children.forEach( child => {
