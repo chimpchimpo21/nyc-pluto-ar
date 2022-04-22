@@ -1,0 +1,36 @@
+body {
+    background-color: #0c0c0c;
+    color:rgb(249, 247, 248);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    overscroll-behavior: none;
+    text-align: center;
+}
+#exp {
+    width: 98vw;
+    font-family: monospace;
+    text-align: left;
+    line-height: 1.6;
+}
+#info {
+    height: 55px;
+    padding: 15px;
+    justify-content: center;
+    background-color: rgb(249, 247, 248);
+    font-family: monospace;
+    font-size: 14px;
+    text-align: center;
+    white-space: pre;
+    color: black;
+}
+.label {
+    height: 50vh;
+    width: 75vh;
+    color: black;
+    overflow: auto;
+    font-family: sans-serif;
+    white-space: pre;
+    text-align: left;
+    padding: 2px;
+    background: rgba(210, 215, 211, 0.5);
+}
