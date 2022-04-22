@@ -231,13 +231,13 @@
                         
                         // spherical mercator positioning
 
-                        pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y).applyMatrix4( controller.matrixWorld );
-                        pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
+                        // pluto_location.position.set(each.st_x-sm_crds[0], 0, sm_crds[1]-each.st_y).applyMatrix4( controller.matrixWorld );
+                        // pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
 
                         // state plane positioning
 
-                        // pluto_location.position.set((each.st_x-sp_crds[0])*0.3048, 0, (sp_crds[1]-each.st_y)*0.3048).applyMatrix4( controller.matrixWorld );
-                        // pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
+                        pluto_location.position.set((each.st_x-sp_crds[0])*0.3048, 0, (sp_crds[1]-each.st_y)*0.3048).applyMatrix4( controller.matrixWorld );
+                        pluto_location.quaternion.setFromRotationMatrix( controller.matrixWorld );
 
                         pluto_location.userData = Object.entries(each);
                         
