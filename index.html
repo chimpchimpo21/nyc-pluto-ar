@@ -126,7 +126,7 @@
             }
             // function runs if there is an error sent from Geolocation API request
             function error(err) {
-                console.warn(`ERROR(${err.code}): ${err.message}`);
+                info.textContent = `ERROR(${err.code}): ${err.message}`;
             }
             // this initializes the Geolocation API request and tells the script what to do depending on the status of the request
             navigator.geolocation.getCurrentPosition(success, error, [options]);
