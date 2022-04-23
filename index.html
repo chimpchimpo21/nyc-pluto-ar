@@ -117,6 +117,7 @@
                         // declare second performance variable to calculate the stop of the PLUTO loading
                         const t1 = performance.now();
                         info.textContent = `loaded ${json.length} pluto in ${t1-t0} ms \naccuracy: ${acc} meters\nTap 'Start AR' Button`;
+                        info.textContent = `${sm_crds}\n ${sp_crds}`;
                         // ########## APPLICATION PART 3: THREE.JS AR SCENE ##########
                         // init() sets up the AR scene using the coordinates of the user, along with their projected coordinates and the PLUTO data in JSON format
                         init(long, lat, sm_crds, sp_crds, json);
