@@ -11,7 +11,7 @@ const pool = new Pool({
 });
 
 app.use(cors())
-app.use(express.static(__dirname + '/public'))
+app.use(express.static(__dirname + '/ public'))
 app.get('/', (req, res) => {
         res.sendFile(path.join(__dirname + '/index.html'));
     })
@@ -20,7 +20,7 @@ app.get('/db', async (req, res) => {
         let lat = req.query.lat;
         try {
             const client = await pool.connect();
-            const result = await client.query(`SELECT *, ST_X(ST_Centroid(geometry)), ST_Y(ST_Centroid(geometry)), ST_AsGeoJSON(ST_Transform(geometry, 4326)) as geojson FROM nyc_pluto_final2 WHERE ST_Intersects(ST_Buffer(ST_Transform(ST_SetSRID(ST_Point(${long}, ${lat}), 4326), 2263), 75), geometry);`);
+            const result = await client.query(`SELECT *, ST_X(ST_Centroid(ST_Transform(geometry, 3857))), ST_Y(ST_Centroid(ST_Transform(geometry, 3857))), ST_AsGeoJSON(ST_Transform(geometry, 4326)) as geojson FROM nyc_pluto_final2 WHERE ST_Intersects(ST_Buffer(ST_Transform(ST_SetSRID(ST_Point(${long}, ${lat}), 4326), 3857), 75), ST_Transform(geometry, 3857));`);
             res.send(result.rows);
             client.release();
         } catch (err) {
