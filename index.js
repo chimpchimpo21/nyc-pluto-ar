@@ -20,7 +20,7 @@ app.get('/db', async (req, res) => {
         let lat = req.query.lat;
         try {
             const client = await pool.connect();
-            const result = await client.query(`SELECT *, ST_X(ST_Centroid(geometry)), ST_Y(ST_Centroid(geometry)), ST_AsGeoJSON(ST_Transform(geometry, 4326)) as geojson, ST_Centroid(ST_Transform(geometry, 3857)) as sm_geom FROM nyc_pluto_final2 WHERE ST_Intersects(ST_Buffer(ST_Transform(ST_SetSRID(ST_Point(${long}, ${lat}), 4326), 2263), 75), geometry);`);
+            const result = await client.query(`SELECT *, ST_X(ST_Centroid(geometry)), ST_Y(ST_Centroid(geometry)), ST_AsGeoJSON(ST_Transform(geometry, 4326)) as geojson, ST_X(ST_Centroid(ST_Transform(geometry, 3857))) as sm_geom_x, ST_Y(ST_Centroid(ST_Transform(geometry, 3857))) as sm_geom_y FROM nyc_pluto_final2 WHERE ST_Intersects(ST_Buffer(ST_Transform(ST_SetSRID(ST_Point(${long}, ${lat}), 4326), 2263), 75), geometry);`);
             res.send(result.rows);
             client.release();
         } catch (err) {
