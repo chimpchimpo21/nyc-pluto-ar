@@ -257,16 +257,17 @@
                 
                 function handleOrientation(event) {
                     // info.innerText = "Android detected"
-                    info.style.display = "none";
+                    // info.style.display = "none";
                     exp.style.display = "none";
                     var alpha = event.alpha;
                     var absolute = event.absolute;
                     if (absolute != "true" && magnet === 0) {
-                        info.style.display = "inline"
+                        // info.style.display = "inline"
                         magnet = 1;
                         window.addEventListener( 'pointerup', handleNonOrientation, once);
                         info.innerText = `No magnetometer detected. \nPlease face 'north' now. \nPlease tap screen to reload.`;
                     } else {
+                        info.style.display = "none";
                         offset = alpha * (Math.PI/180);
 
                         for (const each of json) {
