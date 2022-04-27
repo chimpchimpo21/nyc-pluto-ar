@@ -1,6 +1,8 @@
 # nyc-pluto-ar
 an app to display NYC PLUTO data in augmented reality
 
+the app can be launched at this [heroku app](https://nyc-pluto-ar.herokuapp.com).
+
 by Matt Ward - part of my Hunter College Masters in Geoinformatics thesis project
 
 This webxr AR app uses data from the [New York City PLUTO](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page) (Property Land Use Tax Lot Output) dataset, maintained by the NYC Dept. of Planning.
